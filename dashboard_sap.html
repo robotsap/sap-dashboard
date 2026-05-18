@@ -4,64 +4,64 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard SAP — Operaciones</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0f1117;--surface:#181c27;--border:#252a3a;--card-bg:#1a1f2e;--accent:#FFD700;--accent2:#E63B2E;--accent3:#FF8C42;--accent4:#4A9EFF;--text:#f0f2f8;--muted:#6b7280;--green:#22c55e;}
+  :root{--bg:#f0f2f5;--surface:#ffffff;--border:#e2e8f0;--card-bg:#ffffff;--accent:#FFD700;--red:#E63B2E;--orange:#f97316;--blue:#3b82f6;--text:#0f172a;--text2:#475569;--muted:#94a3b8;--green:#16a34a;--topbar:#0f172a;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;padding:0 0 64px;}
-  .topbar{background:linear-gradient(135deg,#0f1117 0%,#1a1f2e 100%);border-bottom:2px solid var(--accent);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:100;}
-  .topbar-left{display:flex;align-items:center;gap:16px;}
-  .logo-img{height:44px;width:44px;object-fit:contain;border-radius:8px;}
-  .topbar-title h1{font-size:22px;font-weight:800;letter-spacing:-0.3px;color:var(--text);}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:0 0 48px;}
+  .topbar{background:var(--topbar);border-bottom:3px solid var(--accent);padding:14px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .logo-img{height:50px;width:50px;object-fit:contain;border-radius:8px;}
+  .topbar-title h1{font-size:20px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;}
   .topbar-title h1 span{color:var(--accent);}
-  .topbar-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px;}
-  .topbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-  .periodo-badge{background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.3);border-radius:8px;padding:7px 14px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);white-space:nowrap;}
+  .topbar-meta{font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;margin-top:3px;}
+  .topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .periodo-badge{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);border-radius:8px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);white-space:nowrap;}
   .select-wrap{position:relative;}
-  select{appearance:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 34px 8px 14px;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;outline:none;transition:border-color .2s;}
+  select{appearance:none;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 32px 7px 14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#ffffff;cursor:pointer;outline:none;transition:border-color .2s;}
   select:hover,select:focus{border-color:var(--accent);}
   .select-arrow{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--accent);font-size:10px;}
-  .main-content{padding:28px 32px;}
+  .main-content{padding:24px 32px;}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   @media(max-width:900px){.grid{grid-template-columns:1fr;}.main-content{padding:16px;}.topbar{padding:12px 16px;}}
-  .grupo-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;animation:fadeUp .45s ease both;box-shadow:0 4px 24px rgba(0,0,0,.25);}
-  .card-omf{border-top:3px solid var(--accent);animation-delay:.05s;}
-  .card-construcciones{border-top:3px solid var(--accent2);animation-delay:.10s;}
-  .card-soporte{border-top:3px solid var(--accent3);animation-delay:.15s;}
-  .card-tg{border-top:3px solid var(--accent4);animation-delay:.20s;}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-  .grupo-header{padding:16px 20px 13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);}
-  .grupo-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-  .card-omf .grupo-dot{background:var(--accent);box-shadow:0 0 8px var(--accent);}
-  .card-construcciones .grupo-dot{background:var(--accent2);box-shadow:0 0 8px var(--accent2);}
-  .card-soporte .grupo-dot{background:var(--accent3);box-shadow:0 0 8px var(--accent3);}
-  .card-tg .grupo-dot{background:var(--accent4);box-shadow:0 0 8px var(--accent4);}
-  .grupo-nombre{font-size:15px;font-weight:700;letter-spacing:.2px;}
+  .grupo-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;animation:fadeUp .4s ease both;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);}
+  .card-omf{border-top:4px solid var(--accent);animation-delay:.05s;}
+  .card-construcciones{border-top:4px solid var(--red);animation-delay:.10s;}
+  .card-soporte{border-top:4px solid var(--orange);animation-delay:.15s;}
+  .card-tg{border-top:4px solid var(--blue);animation-delay:.20s;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .grupo-header{padding:16px 22px 13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:#fafbfc;}
+  .grupo-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .card-omf .grupo-dot{background:var(--accent);}
+  .card-construcciones .grupo-dot{background:var(--red);}
+  .card-soporte .grupo-dot{background:var(--orange);}
+  .card-tg .grupo-dot{background:var(--blue);}
+  .grupo-nombre{font-size:15px;font-weight:700;color:var(--text);}
   .metricas{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--border);}
-  .metrica{padding:16px 10px;border-right:1px solid var(--border);text-align:center;}
+  .metrica{padding:18px 10px;border-right:1px solid var(--border);text-align:center;background:#ffffff;}
   .metrica:last-child{border-right:none;}
-  .metrica-valor{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;line-height:1;margin-bottom:5px;}
+  .metrica-valor{font-family:'DM Mono',monospace;font-size:30px;font-weight:700;line-height:1;margin-bottom:6px;}
   .metrica-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
   .metrica.aprobados .metrica-valor{color:var(--green);}
-  .metrica.sin-aprobar .metrica-valor{color:var(--accent2);}
-  .metrica.anulados .metrica-valor{color:var(--muted);}
-  .metrica.descuentos .metrica-valor{color:var(--accent);}
-  .horas-row{padding:11px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(255,215,0,.03);}
-  .horas-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
-  .horas-valor{font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:500;}
-  .chart-section{padding:16px 20px 20px;}
-  .chart-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:12px;}
-  .chart-container{display:flex;gap:18px;align-items:center;}
+  .metrica.sin-aprobar .metrica-valor{color:var(--red);}
+  .metrica.anulados .metrica-valor{color:#64748b;}
+  .metrica.descuentos .metrica-valor{color:#d97706;}
+  .horas-row{padding:12px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:#fffbeb;}
+  .horas-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
+  .horas-valor{font-family:'DM Mono',monospace;font-size:17px;color:#b45309;font-weight:700;}
+  .chart-section{padding:18px 22px 22px;background:#ffffff;}
+  .chart-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .chart-container{display:flex;gap:20px;align-items:center;}
   .donut-wrap{flex-shrink:0;position:relative;}
   .donut-wrap svg{display:block;}
   .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
-  .donut-center-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--text);line-height:1;}
+  .donut-center-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--text);line-height:1;}
   .donut-center-label{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:3px;}
-  .leyenda{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;}
-  .leyenda-item{display:flex;align-items:center;gap:7px;font-size:11px;}
-  .leyenda-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
-  .leyenda-nombre{flex:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .leyenda-hs{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;}
+  .leyenda{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0;}
+  .leyenda-item{display:flex;align-items:center;gap:8px;font-size:12px;}
+  .leyenda-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
+  .leyenda-nombre{flex:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;}
+  .leyenda-hs{font-family:'DM Mono',monospace;font-size:11px;color:#475569;flex-shrink:0;font-weight:500;}
   .no-descuentos{font-size:12px;color:var(--muted);font-style:italic;padding:8px 0;}
   .sin-datos{text-align:center;padding:40px;color:var(--muted);font-size:13px;}
 </style>
@@ -87,10 +87,9 @@
   <div class="grid" id="grid"></div>
 </div>
 <script>
-const PALETA=["#FFD700","#E63B2E","#FF8C42","#4A9EFF","#a29bfe","#22c55e","#fd79a8","#00cec9","#fdcb6e","#6c5ce7","#55efc4","#81ecec","#fab1a0","#636e72","#b2bec3"];
+const PALETA=["#f59e0b","#ef4444","#f97316","#3b82f6","#8b5cf6","#10b981","#ec4899","#06b6d4","#84cc16","#6366f1","#14b8a6","#f43f5e","#a855f7","#64748b","#0ea5e9"];
 const CARD_CLASS={"OMF":"card-omf","Construcciones":"card-construcciones","Soporte":"card-soporte","Tareas Generales":"card-tg"};
-const DATA={"generado": "15/05/2026 01:26", "periodos": [{"nombre": "Enero_26", "label": "Enero 26", "fecha_inicio": "21/12/2025", "fecha_fin": "20/01/2026", "grupos": {"OMF": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 66.45, "motivos": [{"motivo": "TOTAL", "hs": 33.227}, {"motivo": "Personal sin Relevo", "hs": 17.833}, {"motivo": "Tiempo de Ejecución", "hs": 6.973}, {"motivo": "Retraso en Transporte", "hs": 3.865}, {"motivo": "Exceso en Almuerzo", "hs": 1.789}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.184}, {"motivo": "Charla Gremial", "hs": 0.75}, {"motivo": "Rotura de Movil", "hs": 0.5}, {"motivo": "Exceso en Fin de Jornada", "hs": 0.25}, {"motivo": "GPS", "hs": 0.083}]}, "Soporte": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 39.33, "motivos": [{"motivo": "TOTAL", "hs": 19.666}, {"motivo": "Personal sin Relevo", "hs": 16.5}, {"motivo": "Tiempo de Ejecución", "hs": 0.883}, {"motivo": "Exceso en Inicio de Jornada", "hs": 0.583}, {"motivo": "Exceso en Fin de Jornada", "hs": 0.5}, {"motivo": "GPS", "hs": 0.45}, {"motivo": "Retraso en Transporte", "hs": 0.333}, {"motivo": "Otros", "hs": 0.25}, {"motivo": "Exceso en Almuerzo", "hs": 0.167}]}, "Construcciones": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 9.33, "motivos": [{"motivo": "TOTAL", "hs": 4.667}, {"motivo": "Rotura de Movil", "hs": 2.25}, {"motivo": "Personal sin Relevo", "hs": 1.25}, {"motivo": "Retraso en Transporte", "hs": 0.833}, {"motivo": "Tiempo de Ejecución", "hs": 0.334}]}, "Tareas Generales": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 48.17, "motivos": [{"motivo": "TOTAL", "hs": 24.083}, {"motivo": "Personal sin Relevo", "hs": 13.584}, {"motivo": "Rotura de Movil", "hs": 5.333}, {"motivo": "Tiempo de Ejecución", "hs": 4.333}, {"motivo": "Exceso en Inicio de Jornada", "hs": 0.5}, {"motivo": "Recargo dia Anterior", "hs": 0.333}]}}}, {"nombre": "Febrero_26", "label": "Febrero 26", "fecha_inicio": "21/01/2026", "fecha_fin": "20/02/2026", "grupos": {"OMF": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 1364.81, "motivos": [{"motivo": "TOTAL", "hs": 682.407}, {"motivo": "Conflicto Gremial", "hs": 640.913}, {"motivo": "Personal sin Relevo", "hs": 29.583}, {"motivo": "GPS", "hs": 4.384}, {"motivo": "Tiempo de Ejecución", "hs": 3.53}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.25}, {"motivo": "Exceso en Fin de Jornada", "hs": 1.0}, {"motivo": "Retraso en Transporte", "hs": 0.917}, {"motivo": "Rotura de Movil", "hs": 0.75}, {"motivo": "Exceso en Almuerzo", "hs": 0.08}]}, "Soporte": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 146.5, "motivos": [{"motivo": "TOTAL", "hs": 73.25}, {"motivo": "Conflicto Gremial", "hs": 67.333}, {"motivo": "Tiempo de Ejecución", "hs": 1.75}, {"motivo": "Rotura de Movil", "hs": 1.5}, {"motivo": "Retraso en Transporte", "hs": 1.417}, {"motivo": "Personal sin Relevo", "hs": 1.0}, {"motivo": "Exceso en Fin de Jornada", "hs": 0.25}]}, "Construcciones": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 435.0, "motivos": [{"motivo": "TOTAL", "hs": 217.499}, {"motivo": "Conflicto Gremial", "hs": 203.332}, {"motivo": "Rotura de Movil", "hs": 8.667}, {"motivo": "Personal sin Relevo", "hs": 4.5}, {"motivo": "Retraso en Transporte", "hs": 1.0}]}, "Tareas Generales": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 206.83, "motivos": [{"motivo": "TOTAL", "hs": 103.417}, {"motivo": "Conflicto Gremial", "hs": 66.583}, {"motivo": "Personal sin Relevo", "hs": 27.25}, {"motivo": "Rotura de Movil", "hs": 6.084}, {"motivo": "Tiempo de Ejecución", "hs": 2.5}, {"motivo": "GPS", "hs": 1.0}]}}}, {"nombre": "Marzo_26", "label": "Marzo 26", "fecha_inicio": "21/02/2026", "fecha_fin": "20/03/2026", "grupos": {"OMF": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 44.88, "motivos": [{"motivo": "TOTAL", "hs": 22.438}, {"motivo": "Tiempo de Ejecución", "hs": 7.524}, {"motivo": "Retraso en Transporte", "hs": 7.451}, {"motivo": "Otros", "hs": 4.397}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.25}, {"motivo": "Personal sin Relevo", "hs": 0.833}, {"motivo": "GPS", "hs": 0.65}, {"motivo": "Rotura de Movil", "hs": 0.333}]}, "Soporte": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 3.97, "motivos": [{"motivo": "TOTAL", "hs": 1.983}, {"motivo": "Retraso en Transporte", "hs": 0.75}, {"motivo": "Personal sin Relevo", "hs": 0.75}, {"motivo": "Tiempo de Ejecución", "hs": 0.483}]}, "Construcciones": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 12.17, "motivos": [{"motivo": "TOTAL", "hs": 6.084}, {"motivo": "Retraso en Transporte", "hs": 3.084}, {"motivo": "Rotura de Movil", "hs": 2.167}, {"motivo": "Personal sin Relevo", "hs": 0.666}, {"motivo": "Exceso en Inicio de Jornada", "hs": 0.167}]}, "Tareas Generales": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 27.83, "motivos": [{"motivo": "TOTAL", "hs": 13.917}, {"motivo": "Rotura de Movil", "hs": 7.417}, {"motivo": "Personal sin Relevo", "hs": 4.75}, {"motivo": "Exceso en Almuerzo", "hs": 1.417}, {"motivo": "Tiempo de Ejecución", "hs": 0.333}]}}}, {"nombre": "Abril_26", "label": "Abril 26", "fecha_inicio": "21/03/2026", "fecha_fin": "20/04/2026", "grupos": {"OMF": {"aprobados": 220, "sin_aprobar": 105, "anulados": 4, "con_descuento": 17, "horas_descontadas": 210.76, "motivos": [{"motivo": "Falta Fotografía", "hs": 148.389}, {"motivo": "Descuento Sin Base Operativa", "hs": 22.349}, {"motivo": "Personal sin Relevo", "hs": 12.0}, {"motivo": "Foto Desfavorable", "hs": 8.703}, {"motivo": "Exceso en Inicio de Jornada", "hs": 7.311}, {"motivo": "Retraso en Transporte", "hs": 5.253}, {"motivo": "Tiempo de Ejecución", "hs": 2.517}, {"motivo": "Exceso en Fin de Jornada", "hs": 1.5}, {"motivo": "Exceso de Traslado", "hs": 1.16}, {"motivo": "Reiterado Retiro de Materiales", "hs": 0.75}, {"motivo": "Rotura de Movil", "hs": 0.667}, {"motivo": "Exceso en Almuerzo", "hs": 0.083}, {"motivo": "Otros", "hs": 0.083}]}, "Soporte": {"aprobados": 141, "sin_aprobar": 21, "anulados": 8, "con_descuento": 30, "horas_descontadas": 24.14, "motivos": [{"motivo": "Rotura de Movil", "hs": 9.5}, {"motivo": "Tiempo de Ejecución", "hs": 6.517}, {"motivo": "Otros", "hs": 3.09}, {"motivo": "Personal sin Relevo", "hs": 2.583}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.082}, {"motivo": "Retraso en Transporte", "hs": 0.867}, {"motivo": "Exceso de Traslado", "hs": 0.5}]}, "Construcciones": {"aprobados": 373, "sin_aprobar": 1, "anulados": 3, "con_descuento": 7, "horas_descontadas": 9.17, "motivos": [{"motivo": "Rotura de Movil", "hs": 7.668}, {"motivo": "Personal sin Relevo", "hs": 1.0}, {"motivo": "Tiempo de Ejecución", "hs": 0.5}]}, "Tareas Generales": {"aprobados": 104, "sin_aprobar": 4, "anulados": 1, "con_descuento": 5, "horas_descontadas": 9.5, "motivos": [{"motivo": "Rotura de Movil", "hs": 5.333}, {"motivo": "Tiempo de Ejecución", "hs": 4.167}]}}}, {"nombre": "Mayo_26", "label": "Mayo 26", "fecha_inicio": "21/04/2026", "fecha_fin": "20/05/2026", "grupos": {"OMF": {"aprobados": 45, "sin_aprobar": 594, "anulados": 1, "con_descuento": 7, "horas_descontadas": 49.56, "motivos": [{"motivo": "Falta Fotografía", "hs": 32.713}, {"motivo": "Retraso en Transporte", "hs": 7.25}, {"motivo": "Tiempo de Ejecución", "hs": 3.776}, {"motivo": "Exceso de Traslado", "hs": 2.24}, {"motivo": "Foto Desfavorable", "hs": 1.831}, {"motivo": "Descuento Sin Base Operativa", "hs": 1.5}, {"motivo": "Otros", "hs": 0.25}]}, "Soporte": {"aprobados": 8, "sin_aprobar": 116, "anulados": 1, "con_descuento": 1, "horas_descontadas": 1.17, "motivos": [{"motivo": "Retraso en Transporte", "hs": 1.167}]}, "Construcciones": {"aprobados": 0, "sin_aprobar": 317, "anulados": 2, "con_descuento": 0, "horas_descontadas": 5.75, "motivos": [{"motivo": "Retraso en Transporte", "hs": 2.75}, {"motivo": "Rotura de Movil", "hs": 1.5}, {"motivo": "Personal sin Relevo", "hs": 1.5}]}, "Tareas Generales": {"aprobados": 35, "sin_aprobar": 52, "anulados": 0, "con_descuento": 2, "horas_descontadas": 8.58, "motivos": [{"motivo": "Rotura de Movil", "hs": 7.0}, {"motivo": "Otros", "hs": 1.167}, {"motivo": "Personal sin Relevo", "hs": 0.417}]}}}]};
-
+const DATA={"generado": "16/05/2026 01:13", "periodos": [{"nombre": "Enero_26", "label": "Enero 26", "fecha_inicio": "21/12/2025", "fecha_fin": "20/01/2026", "grupos": {"OMF": {"aprobados": 1, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 66.45, "motivos": [{"motivo": "TOTAL", "hs": 33.227}, {"motivo": "Personal sin Relevo", "hs": 17.833}, {"motivo": "Tiempo de Ejecución", "hs": 6.973}, {"motivo": "Retraso en Transporte", "hs": 3.865}, {"motivo": "Exceso en Almuerzo", "hs": 1.789}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.184}, {"motivo": "Charla Gremial", "hs": 0.75}, {"motivo": "Rotura de Movil", "hs": 0.5}, {"motivo": "Exceso en Fin de Jornada", "hs": 0.25}, {"motivo": "GPS", "hs": 0.083}]}, "Soporte": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 39.33, "motivos": [{"motivo": "TOTAL", "hs": 19.666}, {"motivo": "Personal sin Relevo", "hs": 16.5}, {"motivo": "Tiempo de Ejecución", "hs": 0.883}, {"motivo": "Exceso en Inicio de Jornada", "hs": 0.583}, {"motivo": "Exceso en Fin de Jornada", "hs": 0.5}, {"motivo": "GPS", "hs": 0.45}, {"motivo": "Retraso en Transporte", "hs": 0.333}, {"motivo": "Otros", "hs": 0.25}, {"motivo": "Exceso en Almuerzo", "hs": 0.167}]}, "Construcciones": {"aprobados": 6, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 9.33, "motivos": [{"motivo": "TOTAL", "hs": 4.667}, {"motivo": "Rotura de Movil", "hs": 2.25}, {"motivo": "Personal sin Relevo", "hs": 1.25}, {"motivo": "Retraso en Transporte", "hs": 0.833}, {"motivo": "Tiempo de Ejecución", "hs": 0.334}]}, "Tareas Generales": {"aprobados": 0, "sin_aprobar": 0, "anulados": 0, "con_descuento": 0, "horas_descontadas": 48.17, "motivos": [{"motivo": "TOTAL", "hs": 24.083}, {"motivo": "Personal sin Relevo", "hs": 13.584}, {"motivo": "Rotura de Movil", "hs": 5.333}, {"motivo": "Tiempo de Ejecución", "hs": 4.333}, {"motivo": "Exceso en Inicio de Jornada", "hs": 0.5}, {"motivo": "Recargo dia Anterior", "hs": 0.333}]}}}, {"nombre": "Febrero_26", "label": "Febrero 26", "fecha_inicio": "21/01/2026", "fecha_fin": "20/02/2026", "grupos": {"OMF": {"aprobados": 9, "sin_aprobar": 9, "anulados": 0, "con_descuento": 1, "horas_descontadas": 1364.81, "motivos": [{"motivo": "TOTAL", "hs": 682.407}, {"motivo": "Conflicto Gremial", "hs": 640.913}, {"motivo": "Personal sin Relevo", "hs": 29.583}, {"motivo": "GPS", "hs": 4.384}, {"motivo": "Tiempo de Ejecución", "hs": 3.53}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.25}, {"motivo": "Exceso en Fin de Jornada", "hs": 1.0}, {"motivo": "Retraso en Transporte", "hs": 0.917}, {"motivo": "Rotura de Movil", "hs": 0.75}, {"motivo": "Exceso en Almuerzo", "hs": 0.08}]}, "Soporte": {"aprobados": 10, "sin_aprobar": 0, "anulados": 1, "con_descuento": 0, "horas_descontadas": 146.5, "motivos": [{"motivo": "TOTAL", "hs": 73.25}, {"motivo": "Conflicto Gremial", "hs": 67.333}, {"motivo": "Tiempo de Ejecución", "hs": 1.75}, {"motivo": "Rotura de Movil", "hs": 1.5}, {"motivo": "Retraso en Transporte", "hs": 1.417}, {"motivo": "Personal sin Relevo", "hs": 1.0}, {"motivo": "Exceso en Fin de Jornada", "hs": 0.25}]}, "Construcciones": {"aprobados": 42, "sin_aprobar": 1, "anulados": 1, "con_descuento": 15, "horas_descontadas": 435.0, "motivos": [{"motivo": "TOTAL", "hs": 217.499}, {"motivo": "Conflicto Gremial", "hs": 203.332}, {"motivo": "Rotura de Movil", "hs": 8.667}, {"motivo": "Personal sin Relevo", "hs": 4.5}, {"motivo": "Retraso en Transporte", "hs": 1.0}]}, "Tareas Generales": {"aprobados": 15, "sin_aprobar": 0, "anulados": 0, "con_descuento": 9, "horas_descontadas": 206.83, "motivos": [{"motivo": "TOTAL", "hs": 103.417}, {"motivo": "Conflicto Gremial", "hs": 66.583}, {"motivo": "Personal sin Relevo", "hs": 27.25}, {"motivo": "Rotura de Movil", "hs": 6.084}, {"motivo": "Tiempo de Ejecución", "hs": 2.5}, {"motivo": "GPS", "hs": 1.0}]}}}, {"nombre": "Marzo_26", "label": "Marzo 26", "fecha_inicio": "21/02/2026", "fecha_fin": "20/03/2026", "grupos": {"OMF": {"aprobados": 231, "sin_aprobar": 1, "anulados": 1, "con_descuento": 1, "horas_descontadas": 44.88, "motivos": [{"motivo": "TOTAL", "hs": 22.438}, {"motivo": "Tiempo de Ejecución", "hs": 7.524}, {"motivo": "Retraso en Transporte", "hs": 7.451}, {"motivo": "Otros", "hs": 4.397}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.25}, {"motivo": "Personal sin Relevo", "hs": 0.833}, {"motivo": "GPS", "hs": 0.65}, {"motivo": "Rotura de Movil", "hs": 0.333}]}, "Soporte": {"aprobados": 154, "sin_aprobar": 4, "anulados": 4, "con_descuento": 4, "horas_descontadas": 3.97, "motivos": [{"motivo": "TOTAL", "hs": 1.983}, {"motivo": "Retraso en Transporte", "hs": 0.75}, {"motivo": "Personal sin Relevo", "hs": 0.75}, {"motivo": "Tiempo de Ejecución", "hs": 0.483}]}, "Construcciones": {"aprobados": 407, "sin_aprobar": 0, "anulados": 2, "con_descuento": 10, "horas_descontadas": 12.17, "motivos": [{"motivo": "TOTAL", "hs": 6.084}, {"motivo": "Retraso en Transporte", "hs": 3.084}, {"motivo": "Rotura de Movil", "hs": 2.167}, {"motivo": "Personal sin Relevo", "hs": 0.666}, {"motivo": "Exceso en Inicio de Jornada", "hs": 0.167}]}, "Tareas Generales": {"aprobados": 100, "sin_aprobar": 0, "anulados": 0, "con_descuento": 10, "horas_descontadas": 27.83, "motivos": [{"motivo": "TOTAL", "hs": 13.917}, {"motivo": "Rotura de Movil", "hs": 7.417}, {"motivo": "Personal sin Relevo", "hs": 4.75}, {"motivo": "Exceso en Almuerzo", "hs": 1.417}, {"motivo": "Tiempo de Ejecución", "hs": 0.333}]}}}, {"nombre": "Abril_26", "label": "Abril 26", "fecha_inicio": "21/03/2026", "fecha_fin": "20/04/2026", "grupos": {"OMF": {"aprobados": 220, "sin_aprobar": 105, "anulados": 4, "con_descuento": 17, "horas_descontadas": 210.76, "motivos": [{"motivo": "Falta Fotografía", "hs": 148.389}, {"motivo": "Descuento Sin Base Operativa", "hs": 22.349}, {"motivo": "Personal sin Relevo", "hs": 12.0}, {"motivo": "Foto Desfavorable", "hs": 8.703}, {"motivo": "Exceso en Inicio de Jornada", "hs": 7.311}, {"motivo": "Retraso en Transporte", "hs": 5.253}, {"motivo": "Tiempo de Ejecución", "hs": 2.517}, {"motivo": "Exceso en Fin de Jornada", "hs": 1.5}, {"motivo": "Exceso de Traslado", "hs": 1.16}, {"motivo": "Reiterado Retiro de Materiales", "hs": 0.75}, {"motivo": "Rotura de Movil", "hs": 0.667}, {"motivo": "Exceso en Almuerzo", "hs": 0.083}, {"motivo": "Otros", "hs": 0.083}]}, "Soporte": {"aprobados": 141, "sin_aprobar": 21, "anulados": 8, "con_descuento": 30, "horas_descontadas": 24.14, "motivos": [{"motivo": "Rotura de Movil", "hs": 9.5}, {"motivo": "Tiempo de Ejecución", "hs": 6.517}, {"motivo": "Otros", "hs": 3.09}, {"motivo": "Personal sin Relevo", "hs": 2.583}, {"motivo": "Exceso en Inicio de Jornada", "hs": 1.082}, {"motivo": "Retraso en Transporte", "hs": 0.867}, {"motivo": "Exceso de Traslado", "hs": 0.5}]}, "Construcciones": {"aprobados": 373, "sin_aprobar": 1, "anulados": 3, "con_descuento": 7, "horas_descontadas": 9.17, "motivos": [{"motivo": "Rotura de Movil", "hs": 7.668}, {"motivo": "Personal sin Relevo", "hs": 1.0}, {"motivo": "Tiempo de Ejecución", "hs": 0.5}]}, "Tareas Generales": {"aprobados": 104, "sin_aprobar": 4, "anulados": 1, "con_descuento": 5, "horas_descontadas": 9.5, "motivos": [{"motivo": "Rotura de Movil", "hs": 5.333}, {"motivo": "Tiempo de Ejecución", "hs": 4.167}]}}}, {"nombre": "Mayo_26", "label": "Mayo 26", "fecha_inicio": "21/04/2026", "fecha_fin": "20/05/2026", "grupos": {"OMF": {"aprobados": 45, "sin_aprobar": 607, "anulados": 1, "con_descuento": 7, "horas_descontadas": 58.97, "motivos": [{"motivo": "Falta Fotografía", "hs": 37.765}, {"motivo": "Retraso en Transporte", "hs": 8.068}, {"motivo": "Exceso de Traslado", "hs": 5.28}, {"motivo": "Tiempo de Ejecución", "hs": 4.276}, {"motivo": "Foto Desfavorable", "hs": 1.831}, {"motivo": "Descuento Sin Base Operativa", "hs": 1.5}, {"motivo": "Otros", "hs": 0.25}]}, "Soporte": {"aprobados": 8, "sin_aprobar": 121, "anulados": 1, "con_descuento": 1, "horas_descontadas": 1.17, "motivos": [{"motivo": "Retraso en Transporte", "hs": 1.167}]}, "Construcciones": {"aprobados": 0, "sin_aprobar": 327, "anulados": 2, "con_descuento": 0, "horas_descontadas": 5.75, "motivos": [{"motivo": "Retraso en Transporte", "hs": 2.75}, {"motivo": "Rotura de Movil", "hs": 1.5}, {"motivo": "Personal sin Relevo", "hs": 1.5}]}, "Tareas Generales": {"aprobados": 35, "sin_aprobar": 56, "anulados": 0, "con_descuento": 2, "horas_descontadas": 8.58, "motivos": [{"motivo": "Rotura de Movil", "hs": 7.0}, {"motivo": "Otros", "hs": 1.167}, {"motivo": "Personal sin Relevo", "hs": 0.417}]}}}]};
 function generarDonut(motivos,size=120){
   if(!motivos||!motivos.length)return null;
   const total=motivos.reduce((s,m)=>s+m.hs,0);
@@ -106,9 +105,8 @@ function generarDonut(motivos,size=120){
     paths+=`<path d="M ${x1} ${y1} A ${radio} ${radio} 0 ${large} 1 ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="${grosor}" stroke-linecap="butt"/>`;
     angulo+=grados;
   });
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radio}" fill="none" stroke="#252a3a" stroke-width="${grosor}"/>${paths}</svg>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${radio}" fill="none" stroke="#cbd5e1" stroke-width="${grosor}"/>${paths}</svg>`;
 }
-
 function renderGrupo(nombre,datos){
   const motivos=datos.motivos||[],cardClass=CARD_CLASS[nombre]||"";
   const metricas=`<div class="metricas">
@@ -123,43 +121,27 @@ function renderGrupo(nombre,datos){
     const svg=generarDonut(motivos),tot=motivos.reduce((s,m)=>s+m.hs,0);
     const leyenda=motivos.map((item,i)=>{
       const color=PALETA[i%PALETA.length],pct=tot>0?(item.hs/tot*100).toFixed(1):0;
-      return `<div class="leyenda-item"><div class="leyenda-dot" style="background:${color}"></div><span class="leyenda-nombre" title="${item.motivo}">${item.motivo}</span><span class="leyenda-hs">${item.hs.toFixed(2)}h·${pct}%</span></div>`;
+      return `<div class="leyenda-item"><div class="leyenda-dot" style="background:${color}"></div><span class="leyenda-nombre" title="${item.motivo}">${item.motivo}</span><span class="leyenda-hs">${item.hs.toFixed(2)}h · ${pct}%</span></div>`;
     }).join("");
     chartContent=`<div class="chart-container"><div class="donut-wrap">${svg}<div class="donut-center"><div class="donut-center-val">${tot.toFixed(1)}h</div><div class="donut-center-label">total</div></div></div><div class="leyenda">${leyenda}</div></div>`;
-  }else{
-    chartContent=`<p class="no-descuentos">Sin motivos de descuento registrados</p>`;
-  }
+  }else{chartContent=`<p class="no-descuentos">Sin motivos de descuento registrados</p>`;}
   return `<div class="grupo-card ${cardClass}"><div class="grupo-header"><div class="grupo-dot"></div><div class="grupo-nombre">${nombre}</div></div>${metricas}${horasRow}<div class="chart-section"><div class="chart-title">Motivo de Descuentos</div>${chartContent}</div></div>`;
 }
-
 function cambiarPeriodo(nombrePeriodo){
   const periodo=DATA.periodos.find(p=>p.nombre===nombrePeriodo);
   if(!periodo)return;
   document.getElementById("periodo-badge").textContent="Período: "+periodo.fecha_inicio+" → "+periodo.fecha_fin;
   const orden=["OMF","Construcciones","Soporte","Tareas Generales"];
-  const grid=document.getElementById("grid");
-  grid.innerHTML="";
-  const grupos=periodo.grupos;
-  let hayDatos=false;
+  document.getElementById("grid").innerHTML="";
   orden.forEach(nombre=>{
-    const datos=grupos[nombre];
-    if(datos){grid.innerHTML+=renderGrupo(nombre,datos);hayDatos=true;}
+    const datos=periodo.grupos[nombre];
+    if(datos)document.getElementById("grid").innerHTML+=renderGrupo(nombre,datos);
   });
-  if(!hayDatos)grid.innerHTML=`<div class="sin-datos">No hay datos disponibles para este período</div>`;
 }
-
 const selector=document.getElementById("selector-periodo");
-DATA.periodos.forEach(p=>{
-  const opt=document.createElement("option");
-  opt.value=p.nombre;opt.textContent=p.label;
-  selector.appendChild(opt);
-});
+DATA.periodos.forEach(p=>{const opt=document.createElement("option");opt.value=p.nombre;opt.textContent=p.label;selector.appendChild(opt);});
 document.getElementById("meta-generado").textContent="Actualizado: "+DATA.generado;
-if(DATA.periodos.length>0){
-  const ultimo=DATA.periodos[DATA.periodos.length-1];
-  selector.value=ultimo.nombre;
-  cambiarPeriodo(ultimo.nombre);
-}
+if(DATA.periodos.length>0){const u=DATA.periodos[DATA.periodos.length-1];selector.value=u.nombre;cambiarPeriodo(u.nombre);}
 </script>
 </body>
 </html>
