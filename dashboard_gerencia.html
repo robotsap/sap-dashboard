@@ -293,6 +293,19 @@ DATA.periodos.forEach(p=>{
 });
 selGer.value=VALOR_ACUMULADO;
 cambiarPeriodoGerencia(VALOR_ACUMULADO);
+
+// Cache-busting: fuerza recarga si el parametro ?v= no coincide con la
+// version embebida (mismo mecanismo que usa dashboard_sap.html). Evita
+// que GitHub Pages / el navegador sigan mostrando una version vieja
+// cacheada despues de actualizar el archivo.
+(function(){
+  const VERSION="202607271747";
+  const params=new URLSearchParams(window.location.search);
+  if(params.get("v")!==VERSION){
+    params.set("v",VERSION);
+    window.location.replace(window.location.pathname+"?"+params.toString());
+  }
+})();
 </script>
 </body>
 </html>
