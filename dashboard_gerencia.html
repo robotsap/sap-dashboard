@@ -9,9 +9,12 @@
   :root{--bg:#f0f2f5;--surface:#ffffff;--border:#e2e8f0;--card-bg:#ffffff;--accent:#FFD700;--orange:#f97316;--text:#0f172a;--text2:#475569;--muted:#94a3b8;--topbar:#0f172a;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:0 0 48px;}
-  .topbar{background:var(--topbar);border-bottom:3px solid var(--accent);padding:14px 32px;display:flex;justify-content:flex-end;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15);}
+  .topbar{background:var(--topbar);border-bottom:3px solid var(--accent);padding:14px 32px;display:flex;justify-content:flex-end;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15);}
+  .periodo-label{color:#cbd5e1;font-size:13px;font-weight:600;}
+  .select-wrap{position:relative;}
   select{appearance:none;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 32px 7px 14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#ffffff;cursor:pointer;outline:none;}
   select:hover,select:focus{border-color:var(--accent);}
+  .select-arrow{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--accent);font-size:10px;}
   .main-content{padding:24px 32px;}
   .app-split-ger{display:flex;gap:20px;align-items:flex-start;}
   .panel-izq-ger{flex:0 0 30%;min-width:280px;position:sticky;top:90px;}
@@ -28,7 +31,7 @@
   .fila-metrica input[type=checkbox]{width:16px;height:16px;cursor:pointer;}
   .fila-metrica .valor{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#b45309;}
   .panel-placeholder{color:var(--muted);font-size:14px;padding:20px 4px;}
-  .panel-titulo{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+  .panel-titulo{font-size:13px;color:#1e3a8a;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
   .panel-ranking{margin-bottom:28px;}
   .ranking-box{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
   .ranking-header,.ranking-row{display:grid;grid-template-columns:26px 90px 90px 56px 1fr 88px;padding:9px 14px;font-size:13px;align-items:center;column-gap:8px;}
@@ -53,7 +56,11 @@
 <body>
 
 <div class="topbar">
-  <select id="selector-periodo-ger" onchange="cambiarPeriodoGerencia(this.value)"></select>
+  <span class="periodo-label">Periodo</span>
+  <div class="select-wrap">
+    <select id="selector-periodo-ger" onchange="cambiarPeriodoGerencia(this.value)"></select>
+    <span class="select-arrow">&#9662;</span>
+  </div>
 </div>
 
 
@@ -153,6 +160,25 @@ function valorMetrica(obj, metrica){
   return obj[metrica.campo]/partes;
 }
 
+// Convierte un valor decimal de horas (ej. 3.75) al formato h:mm (ej.
+// "3:45"). Solo se usa para las metricas de tiempo (Operativo, Traslado,
+// PRP) -- OT/Parte queda en decimal porque es una CANTIDAD, no un tiempo.
+function formatoHoraMin(valorDecimal){
+  const negativo=valorDecimal<0;
+  const abs=Math.abs(valorDecimal);
+  let horas=Math.floor(abs);
+  let minutos=Math.round((abs-horas)*60);
+  if(minutos===60){minutos=0;horas+=1;}
+  const minutosStr=String(minutos).padStart(2,"0");
+  return (negativo?"-":"")+horas+":"+minutosStr;
+}
+
+// Texto a mostrar para un valor, segun el tipo de metrica: h:mm para las
+// de tiempo, decimal con 2 decimales para OT/Parte (cantidad, no tiempo).
+function formatoValor(valorDecimal, metrica){
+  return metrica.key==='ot'?valorDecimal.toFixed(2):formatoHoraMin(valorDecimal);
+}
+
 function cambiarPeriodoGerencia(valor){
   periodoActual=valor;
   cuadrillaAbierta=null;
@@ -170,7 +196,7 @@ function renderTarjetaSoporte(){
   const filas=METRICAS_GER.map(m=>{
     const v=valorMetrica(grupoAgregadoSoporte,m);
     const chequeado=metricaAbierta===m.key?"checked":"";
-    const texto=m.key==='ot'?v.toFixed(2):v.toFixed(2)+" hs / parte";
+    const texto=m.key==='ot'?formatoValor(v,m):formatoValor(v,m)+" hs / parte";
     return `<div class="fila-metrica">
       <label><input type="checkbox" ${chequeado} onchange="toggleMetrica('${m.key}')"/> ${m.label}</label>
       <span class="valor">${texto}</span>
@@ -217,7 +243,7 @@ function renderRanking(key){
       <span>${c.servicio||"-"}</span>
       <span>${c.base||"-"}</span>
       <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
-      <span class="valor">${c.valor.toFixed(2)}</span>
+      <span class="valor">${formatoValor(c.valor,metrica)}</span>
     </div>`;
     const trend=cuadrillaAbierta===c.codigo?construirTrendInline(c,metrica):"";
     return fila+trend;
@@ -270,7 +296,7 @@ function construirTrendInline(cuadrilla, metrica){
     <div class="trend-inline-titulo">Evolucion mensual &middot; ${metrica.label} &middot; Tablet ${nombreCuadrilla} (${cuadrilla.servicio||"-"} &middot; Base ${cuadrilla.base||"-"})</div>
     <div class="trend-vert-wrap">
       ${filas.map((f,i)=>`<div class="trend-bar-col">
-        <div class="trend-bar-valor">${f.valor.toFixed(2)}</div>
+        <div class="trend-bar-valor">${formatoValor(f.valor,metrica)}</div>
         <div class="trend-bar" style="height:${alturas[i]}%"></div>
         <div class="trend-bar-label">${f.label}</div>
       </div>`).join("")}
@@ -299,7 +325,7 @@ cambiarPeriodoGerencia(VALOR_ACUMULADO);
 // que GitHub Pages / el navegador sigan mostrando una version vieja
 // cacheada despues de actualizar el archivo.
 (function(){
-  const VERSION="202607271747";
+  const VERSION="202607271819";
   const params=new URLSearchParams(window.location.search);
   if(params.get("v")!==VERSION){
     params.set("v",VERSION);
