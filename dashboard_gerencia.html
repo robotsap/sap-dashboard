@@ -36,15 +36,17 @@
   .ranking-row{border-top:1px solid var(--border);cursor:pointer;}
   .ranking-row:first-of-type{border-top:none;}
   .ranking-row:hover{background:#f8fafc;}
+  .ranking-row-activa{background:#eff6ff;}
   .ranking-row .num{color:var(--muted);}
   .ranking-bar-track{background:#f1f5f9;border-radius:4px;height:14px;overflow:hidden;}
-  .ranking-bar-fill{height:100%;background:var(--orange);border-radius:4px;}
+  .ranking-bar-fill{height:100%;background:#3b82f6;border-radius:4px;}
   .ranking-row .valor{text-align:right;font-weight:700;font-family:'DM Mono',monospace;}
-  .trend-vert-box{border:1px solid var(--border);border-radius:12px;padding:20px 18px 14px;}
-  .trend-vert-wrap{display:flex;align-items:flex-end;gap:14px;height:180px;padding:0 4px;}
+  .trend-inline{border-top:1px solid var(--border);background:#f8fafc;padding:16px 18px 12px;}
+  .trend-inline-titulo{font-size:11px;color:var(--text2);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:.3px;}
+  .trend-vert-wrap{display:flex;align-items:flex-end;gap:14px;height:160px;padding:0 4px;}
   .trend-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
   .trend-bar-valor{font-size:11px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text2);margin-bottom:6px;}
-  .trend-bar{width:100%;max-width:38px;background:var(--orange);border-radius:5px 5px 0 0;min-height:2px;}
+  .trend-bar{width:100%;max-width:34px;background:#3b82f6;border-radius:5px 5px 0 0;min-height:2px;}
   .trend-bar-label{font-size:11px;color:var(--muted);margin-top:8px;white-space:nowrap;}
 </style>
 </head>
@@ -53,6 +55,7 @@
 <div class="topbar">
   <select id="selector-periodo-ger" onchange="cambiarPeriodoGerencia(this.value)"></select>
 </div>
+
 
 <div class="main-content">
   <div class="app-split-ger">
@@ -73,7 +76,7 @@ const METRICAS_GER=[
   {key:'operativo',  label:'Tiempo operativo',    campo:'tiempo_operativo', ordenPeorPrimero:'asc',  colRanking:'Hs / Parte'},
   {key:'traslado',   label:'Tiempo de traslado',   campo:'tiempo_traslados', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
   {key:'prp',        label:'Tiempo de PRP',        campo:'tiempo_prp',       ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
-  {key:'ot',         label:'Promedio de OT x día', campo:null,               ordenPeorPrimero:'desc', colRanking:'OT / Parte'}
+  {key:'ot',         label:'Promedio de OT x día', campo:null,               ordenPeorPrimero:'asc',  colRanking:'OT / Parte'}
 ];
 
 let periodoActual=VALOR_ACUMULADO;
@@ -152,6 +155,7 @@ function valorMetrica(obj, metrica){
 
 function cambiarPeriodoGerencia(valor){
   periodoActual=valor;
+  cuadrillaAbierta=null;
   const lista=valor===VALOR_ACUMULADO?DATA.periodos:DATA.periodos.filter(p=>p.nombre===valor);
   const listaEfectiva=lista.length?lista:DATA.periodos;
   grupoAgregadoSoporte=construirGrupoAgregado(listaEfectiva,"Soporte");
@@ -180,16 +184,21 @@ function renderTarjetaSoporte(){
     </div>`;
 }
 
+let cuadrillaAbierta=null;
+
 function toggleMetrica(key){
   metricaAbierta=metricaAbierta===key?null:key;
+  cuadrillaAbierta=null;
   renderTarjetaSoporte();
   if(metricaAbierta)renderRanking(metricaAbierta);
   else document.getElementById("panel-der-ger").innerHTML=`<div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>`;
 }
 
 // Ranking con TODAS las cuadrillas del grupo (aunque tengan 0), con barra
-// horizontal proporcional al valor — igual criterio visual que el
-// dashboard operativo.
+// horizontal proporcional al valor. Al hacer click en una fila, la
+// evolucion mensual de esa cuadrilla se inserta INMEDIATAMENTE DEBAJO de
+// esa misma fila (empujando el resto del ranking hacia abajo), dejando
+// bien claro a que cuadrilla corresponde.
 function renderRanking(key){
   const metrica=METRICAS_GER.find(m=>m.key===key);
   let filas=grupoAgregadoSoporte.cuadrillas.map(c=>Object.assign({}, c, {valor:valorMetrica(c,metrica)}));
@@ -200,8 +209,9 @@ function renderRanking(key){
 
   const filasHtml=filas.map((c,i)=>{
     const pct=(c.valor/maxVal*100).toFixed(1);
-    return `
-    <div class="ranking-row" onclick="mostrarTrend('${c.codigo}','${key}')">
+    const activa=cuadrillaAbierta===c.codigo?"ranking-row-activa":"";
+    const fila=`
+    <div class="ranking-row ${activa}" onclick="toggleTrend('${c.codigo}','${key}')">
       <span class="num">${i+1}</span>
       <span>${limpiarNombre(c.nombre)||c.codigo}</span>
       <span>${c.servicio||"-"}</span>
@@ -209,6 +219,8 @@ function renderRanking(key){
       <div class="ranking-bar-track"><div class="ranking-bar-fill" style="width:${pct}%"></div></div>
       <span class="valor">${c.valor.toFixed(2)}</span>
     </div>`;
+    const trend=cuadrillaAbierta===c.codigo?construirTrendInline(c,metrica):"";
+    return fila+trend;
   }).join("");
 
   document.getElementById("panel-der-ger").innerHTML=`
@@ -218,22 +230,26 @@ function renderRanking(key){
         <div class="ranking-header"><span></span><span>Tablet</span><span>Servicio</span><span>Base</span><span></span><span style="text-align:right">${metrica.colRanking}</span></div>
         ${filasHtml}
       </div>
-    </div>
-    <div id="panel-trend-ger"></div>`;
+    </div>`;
 }
 
-// Evolucion mensual en barras VERTICALES. Recorre TODOS los periodos
-// disponibles en DATA.periodos, en orden cronologico, arrancando en
-// Marzo_26 y sumando un mes mas cada vez que se cierra una certificacion
-// (no hay meses fijos "a mano"). Rolling de 12 meses: una vez que hay mas
-// de 12 periodos cargados, se muestran solo los ultimos 12 (los mas viejos
-// se van corriendo). Se muestran TODOS los periodos del rango, con 0 si la
-// cuadrilla no tuvo partes ese mes.
+function toggleTrend(codigo, key){
+  cuadrillaAbierta=cuadrillaAbierta===codigo?null:codigo;
+  renderRanking(key);
+}
+
+// Evolucion mensual en barras VERTICALES para UNA cuadrilla puntual,
+// identificada bien claro en el titulo (tablet + servicio + base) para
+// que quede sin ambiguedad a quien corresponde el grafico. Recorre TODOS
+// los periodos disponibles en DATA.periodos, en orden cronologico,
+// arrancando en Marzo_26 y sumando un mes mas cada vez que se cierra una
+// certificacion (no hay meses fijos "a mano"). Rolling de 12 meses: una
+// vez que hay mas de 12 periodos cargados, se muestran solo los ultimos
+// 12. Se muestran TODOS los periodos del rango, con 0 si la cuadrilla no
+// tuvo partes ese mes.
 const MAX_MESES_TREND=12;
 
-function mostrarTrend(codigo, key){
-  const metrica=METRICAS_GER.find(m=>m.key===key);
-
+function construirTrendInline(cuadrilla, metrica){
   let periodosOrdenados=[...DATA.periodos].sort((a,b)=>parseFechaDMY(a.fecha_inicio)-parseFechaDMY(b.fecha_inicio));
   if(periodosOrdenados.length>MAX_MESES_TREND){
     periodosOrdenados=periodosOrdenados.slice(periodosOrdenados.length-MAX_MESES_TREND);
@@ -241,26 +257,25 @@ function mostrarTrend(codigo, key){
 
   const filas=periodosOrdenados.map(periodo=>{
     const g=periodo.grupos["Soporte"];
-    const c=g?(g.cuadrillas||[]).find(x=>x.codigo===codigo):null;
+    const c=g?(g.cuadrillas||[]).find(x=>x.codigo===cuadrilla.codigo):null;
     const v=c?valorMetrica(c,metrica):0;
     return {label:periodo.label, valor:v};
   });
 
   const max=Math.max(...filas.map(f=>f.valor),0.0001);
   const alturas=filas.map(f=>Math.max((f.valor/max*100),2));
+  const nombreCuadrilla=limpiarNombre(cuadrilla.nombre)||cuadrilla.codigo;
 
-  const panel=document.getElementById("panel-trend-ger");
-  panel.innerHTML=`
-    <div class="panel-titulo">Evolucion mensual &middot; ${metrica.label}</div>
-    <div class="trend-vert-box">
-      <div class="trend-vert-wrap">
-        ${filas.map((f,i)=>`<div class="trend-bar-col">
-          <div class="trend-bar-valor">${f.valor.toFixed(2)}</div>
-          <div class="trend-bar" style="height:${alturas[i]}%"></div>
-          <div class="trend-bar-label">${f.label}</div>
-        </div>`).join("")}
-      </div>
-    </div>`;
+  return `<div class="trend-inline">
+    <div class="trend-inline-titulo">Evolucion mensual &middot; ${metrica.label} &middot; Tablet ${nombreCuadrilla} (${cuadrilla.servicio||"-"} &middot; Base ${cuadrilla.base||"-"})</div>
+    <div class="trend-vert-wrap">
+      ${filas.map((f,i)=>`<div class="trend-bar-col">
+        <div class="trend-bar-valor">${f.valor.toFixed(2)}</div>
+        <div class="trend-bar" style="height:${alturas[i]}%"></div>
+        <div class="trend-bar-label">${f.label}</div>
+      </div>`).join("")}
+    </div>
+  </div>`;
 }
 
 // Selector de periodo: Acumulado + 1 opcion por cada mes disponible en DATA
