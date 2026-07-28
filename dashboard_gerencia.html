@@ -94,6 +94,11 @@ const METRICAS_GER=[
   {key:'operativo',  label:'Tiempo Operativo',    campo:'tiempo_operativo', ordenPeorPrimero:'asc',  colRanking:'Hs / Parte'},
   {key:'traslado',   label:'Tiempo de Traslado',   campo:'tiempo_traslados', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
   {key:'prp',        label:'Tiempo PRP',        campo:'tiempo_prp',       ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
+  {key:'novedades',  label:'Tiempo de Toma de Novedades', campo:'tiempo_novedades', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
+  {key:'almuerzo',   label:'Tiempo de Almuerzo',   campo:'tiempo_almuerzo', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
+  {key:'charla',     label:'Tiempo de Charla de Seguridad', campo:'tiempo_charla_seguridad', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
+  {key:'varios',     label:'Tiempos Varios (Carga de Combustible, Retiro Matrls., Gomería, Mov. en Base)', campo:'tiempo_varios', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
+  {key:'espera',     label:'Tiempo Espera Operativa', campo:'tiempo_espera_operativa', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
   {key:'ot',         label:'Promedio de OT x Día', campo:null,               ordenPeorPrimero:'asc',  colRanking:'OT / Parte'}
 ];
 
@@ -116,6 +121,11 @@ function calcularMedia(lista){
   return lista.reduce((s,v)=>s+v,0)/lista.length;
 }
 
+function sumaLista(lista){
+  if(!lista||!lista.length)return 0;
+  return lista.reduce((s,v)=>s+v,0);
+}
+
 function limpiarNombre(nombre){
   if(!nombre)return nombre;
   return nombre.replace(/^[\s\-–—]+/, "").replace(/[\s\-–—]*PETROSAR\s*$/i, "").trim() || nombre;
@@ -133,6 +143,16 @@ const CUADRILLAS_EXCLUIDAS={
   "Soporte": ["60005824"]
 };
 
+// Campos que se suman tal cual (horas totales) al combinar cuadrillas /
+// periodos. Agregar una entrada nueva aca (mas el campo correspondiente
+// en el JSON real) alcanza para sumar una futura estadistica sin tocar
+// el resto de esta funcion.
+const CAMPOS_SUMABLES=[
+  'tiempo_operativo','tiempo_traslados','tiempo_prp',
+  'tiempo_novedades','tiempo_almuerzo','tiempo_charla_seguridad',
+  'tiempo_varios','tiempo_espera_operativa','partes_validos'
+];
+
 // Suma el grupo Soporte de 1 o varios periodos en un unico objeto, con
 // las cuadrillas ya combinadas (misma tecnica que construirPeriodoAgregado
 // del dashboard operativo, aca acotada al grupo Soporte para esta 1ra etapa).
@@ -141,29 +161,30 @@ const CUADRILLAS_EXCLUIDAS={
 // tampoco pese en la tarjeta.
 function construirGrupoAgregado(listaPeriodos, nombreGrupo){
   const excluidas=new Set(CUADRILLAS_EXCLUIDAS[nombreGrupo]||[]);
-  const acc={tiempo_operativo:0,tiempo_traslados:0,tiempo_prp:0,ot_lista:[],cuadrillasMap:{}};
+  const acc={ot_lista:[],cuadrillasMap:{}};
+  CAMPOS_SUMABLES.forEach(f=>{acc[f]=0;});
   listaPeriodos.forEach(periodo=>{
     const g=periodo.grupos[nombreGrupo];
     if(!g)return;
     (g.cuadrillas||[]).forEach(c=>{
       if(excluidas.has(c.codigo))return;
       if(!acc.cuadrillasMap[c.codigo]){
-        acc.cuadrillasMap[c.codigo]={codigo:c.codigo,nombre:c.nombre||"",servicio:c.servicio||"",base:c.base||"",
-          tiempo_operativo:0,tiempo_traslados:0,tiempo_prp:0,ot_lista:[]};
+        const base={codigo:c.codigo,nombre:c.nombre||"",servicio:c.servicio||"",base:c.base||"",ot_lista:[]};
+        CAMPOS_SUMABLES.forEach(f=>{base[f]=0;});
+        acc.cuadrillasMap[c.codigo]=base;
       }
       const cc=acc.cuadrillasMap[c.codigo];
       if(c.nombre)cc.nombre=c.nombre;
       if(c.servicio)cc.servicio=c.servicio;
       if(c.base)cc.base=c.base;
-      cc.tiempo_operativo+=c.tiempo_operativo||0;
-      cc.tiempo_traslados+=c.tiempo_traslados||0;
-      cc.tiempo_prp+=c.tiempo_prp||0;
-      if(c.ot_lista)cc.ot_lista.push(...c.ot_lista);
-
-      acc.tiempo_operativo+=c.tiempo_operativo||0;
-      acc.tiempo_traslados+=c.tiempo_traslados||0;
-      acc.tiempo_prp+=c.tiempo_prp||0;
-      if(c.ot_lista)acc.ot_lista.push(...c.ot_lista);
+      CAMPOS_SUMABLES.forEach(f=>{
+        cc[f]+=c[f]||0;
+        acc[f]+=c[f]||0;
+      });
+      if(c.ot_lista){
+        cc.ot_lista.push(...c.ot_lista);
+        acc.ot_lista.push(...c.ot_lista);
+      }
     });
   });
   acc.cuadrillas=Object.values(acc.cuadrillasMap);
@@ -172,13 +193,18 @@ function construirGrupoAgregado(listaPeriodos, nombreGrupo){
 
 
 // Hs/Parte u OT/Parte para un objeto agregado (grupo o cuadrilla).
-// Devuelve 0 si no hay partes en el periodo seleccionado (no se oculta
-// la fila, se muestra en 0 — pedido explicito de Luise).
+// El denominador es "partes_validos": la cantidad de partes que tuvieron
+// al menos 1 fila con columna W == "0010" (operativo). Un parte SIN
+// ninguna fila "0010" se omite del denominador (se divide por uno menos),
+// aunque haya aportado horas a alguna de las categorias de arriba --
+// pedido explicito de Luise, aplica a todas las metricas (existentes y
+// nuevas). Devuelve 0 si no hay partes validos en el periodo (no se
+// oculta la fila, se muestra en 0).
 function valorMetrica(obj, metrica){
-  const partes=(obj.ot_lista||[]).length;
-  if(metrica.key==='ot')return partes?calcularMedia(obj.ot_lista):0;
+  const partes=obj.partes_validos||0;
   if(!partes)return 0;
-  return obj[metrica.campo]/partes;
+  if(metrica.key==='ot')return sumaLista(obj.ot_lista)/partes;
+  return (obj[metrica.campo]||0)/partes;
 }
 
 // Convierte un valor decimal de horas (ej. 3.75) al formato h:mm (ej.
@@ -384,7 +410,7 @@ cambiarPeriodoGerencia(periodoDefault);
 // que GitHub Pages / el navegador sigan mostrando una version vieja
 // cacheada despues de actualizar el archivo.
 (function(){
-  const VERSION="202607281256";
+  const VERSION="202607281418";
   const params=new URLSearchParams(window.location.search);
   if(params.get("v")!==VERSION){
     params.set("v",VERSION);
