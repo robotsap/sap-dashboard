@@ -31,6 +31,15 @@
   .fila-metrica input[type=checkbox]{width:16px;height:16px;cursor:pointer;}
   .fila-metrica .valor{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#b45309;}
   .panel-placeholder{color:var(--muted);font-size:14px;padding:20px 4px;}
+  .tabla-rapida-box{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+  .tabla-rapida-titulo{font-size:13px;color:#1e3a8a;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+  .tabla-rapida{width:100%;border-collapse:collapse;font-size:13px;}
+  .tabla-rapida th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px;text-align:right;padding:9px 12px;border-bottom:1px solid var(--border);}
+  .tabla-rapida th:nth-child(1),.tabla-rapida th:nth-child(2),.tabla-rapida th:nth-child(3){text-align:left;}
+  .tabla-rapida td{padding:8px 12px;border-top:1px solid var(--border);text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:var(--text);}
+  .tabla-rapida td:nth-child(1),.tabla-rapida td:nth-child(2),.tabla-rapida td:nth-child(3){text-align:left;font-family:'Inter',sans-serif;font-weight:500;color:var(--text2);}
+  .tabla-rapida tr:first-child td{border-top:none;}
+  .tabla-rapida tr:nth-child(even){background:#fafbfc;}
   .panel-titulo{font-size:13px;color:#1e3a8a;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
   .panel-ranking{margin-bottom:28px;}
   .ranking-box{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
@@ -67,8 +76,11 @@
 <div class="main-content">
   <div class="app-split-ger">
     <div class="panel-izq-ger" id="tarjeta-soporte"></div>
-    <div class="panel-der-ger" id="panel-der-ger">
-      <div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>
+    <div class="panel-der-ger">
+      <div id="tabla-rapida-ger"></div>
+      <div id="zona-ranking-ger">
+        <div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -179,6 +191,44 @@ function formatoValor(valorDecimal, metrica){
   return metrica.key==='ot'?valorDecimal.toFixed(2):formatoHoraMin(valorDecimal);
 }
 
+// Tabla ejecutiva de referencia rapida: todas las cuadrillas del grupo,
+// con las 4 metricas ya calculadas en una sola vista (para gerencia que
+// prefiere numeros a mano en vez de entrar a graficos). Se recalcula
+// junto con el resto cada vez que cambia el periodo seleccionado.
+function renderTablaRapida(){
+  const metOp=METRICAS_GER.find(m=>m.key==='operativo');
+  const metTras=METRICAS_GER.find(m=>m.key==='traslado');
+  const metPrp=METRICAS_GER.find(m=>m.key==='prp');
+  const metOt=METRICAS_GER.find(m=>m.key==='ot');
+
+  const filasHtml=grupoAgregadoSoporte.cuadrillas.map(c=>{
+    const vOp=formatoValor(valorMetrica(c,metOp),metOp);
+    const vTras=formatoValor(valorMetrica(c,metTras),metTras);
+    const vPrp=formatoValor(valorMetrica(c,metPrp),metPrp);
+    const vOt=formatoValor(valorMetrica(c,metOt),metOt);
+    return `<tr>
+      <td>${limpiarNombre(c.nombre)||c.codigo}</td>
+      <td>${c.servicio||"-"}</td>
+      <td>${c.base||"-"}</td>
+      <td>${vOp}</td>
+      <td>${vTras}</td>
+      <td>${vPrp}</td>
+      <td>${vOt}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("tabla-rapida-ger").innerHTML=`
+    <div class="tabla-rapida-box">
+      <table class="tabla-rapida">
+        <thead><tr>
+          <th>Tablet</th><th>Servicio</th><th>Base</th>
+          <th>T. Op.</th><th>T. Traslado</th><th>T. PRP</th><th>OT/d</th>
+        </tr></thead>
+        <tbody>${filasHtml}</tbody>
+      </table>
+    </div>`;
+}
+
 function cambiarPeriodoGerencia(valor){
   periodoActual=valor;
   cuadrillaAbierta=null;
@@ -186,9 +236,10 @@ function cambiarPeriodoGerencia(valor){
   const listaEfectiva=lista.length?lista:DATA.periodos;
   grupoAgregadoSoporte=construirGrupoAgregado(listaEfectiva,"Soporte");
   renderTarjetaSoporte();
+  renderTablaRapida();
   if(metricaAbierta)renderRanking(metricaAbierta);
   else{
-    document.getElementById("panel-der-ger").innerHTML=`<div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>`;
+    document.getElementById("zona-ranking-ger").innerHTML=`<div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>`;
   }
 }
 
@@ -217,7 +268,7 @@ function toggleMetrica(key){
   cuadrillaAbierta=null;
   renderTarjetaSoporte();
   if(metricaAbierta)renderRanking(metricaAbierta);
-  else document.getElementById("panel-der-ger").innerHTML=`<div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>`;
+  else document.getElementById("zona-ranking-ger").innerHTML=`<div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>`;
 }
 
 // Ranking con TODAS las cuadrillas del grupo (aunque tengan 0), con barra
@@ -249,7 +300,7 @@ function renderRanking(key){
     return fila+trend;
   }).join("");
 
-  document.getElementById("panel-der-ger").innerHTML=`
+  document.getElementById("zona-ranking-ger").innerHTML=`
     <div class="panel-ranking">
       <div class="panel-titulo">Ranking &middot; ${metrica.label} &middot; peor a mejor &middot; Periodo: ${etiquetaPeriodo}</div>
       <div class="ranking-box">
@@ -325,7 +376,7 @@ cambiarPeriodoGerencia(VALOR_ACUMULADO);
 // que GitHub Pages / el navegador sigan mostrando una version vieja
 // cacheada despues de actualizar el archivo.
 (function(){
-  const VERSION="202607271823";
+  const VERSION="202607280904";
   const params=new URLSearchParams(window.location.search);
   if(params.get("v")!==VERSION){
     params.set("v",VERSION);
