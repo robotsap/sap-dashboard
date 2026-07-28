@@ -35,6 +35,7 @@
   .tabla-rapida{width:100%;border-collapse:collapse;font-size:13px;}
   .tabla-rapida th{background:#f8fafc;color:var(--muted);font-size:11px;letter-spacing:.3px;text-align:center;padding:9px 12px;border-bottom:1px solid var(--border);font-weight:600;}
   .tabla-rapida th:nth-child(1),.tabla-rapida th:nth-child(2),.tabla-rapida th:nth-child(3){text-align:left;}
+  .th-sub{font-weight:400;color:var(--muted);font-size:10px;margin-top:2px;text-transform:none;letter-spacing:0;}
   .tabla-rapida th .th-sub{font-weight:400;color:var(--muted);font-size:10px;margin-top:2px;text-transform:none;letter-spacing:0;}
   .tabla-rapida td{padding:8px 12px;border-top:1px solid var(--border);text-align:center;font-family:'DM Mono',monospace;font-weight:600;color:var(--text);}
   .tabla-rapida td:nth-child(1),.tabla-rapida td:nth-child(2),.tabla-rapida td:nth-child(3){text-align:left;font-family:'Inter',sans-serif;font-weight:500;color:var(--text2);}
@@ -52,7 +53,7 @@
   .ranking-row .num{color:var(--muted);}
   .ranking-bar-track{background:#f1f5f9;border-radius:4px;height:14px;overflow:hidden;}
   .ranking-bar-fill{height:100%;background:#3b82f6;border-radius:4px;}
-  .ranking-row .valor{text-align:right;font-weight:700;font-family:'DM Mono',monospace;}
+  .ranking-row .valor{text-align:center;font-weight:700;font-family:'DM Mono',monospace;}
   .trend-inline{border-top:1px solid var(--border);background:#f8fafc;padding:16px 18px 12px;}
   .trend-inline-titulo{font-size:11px;color:var(--text2);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:.3px;}
   .trend-vert-wrap{display:flex;align-items:flex-end;gap:14px;height:160px;padding:0 4px;}
@@ -335,11 +336,13 @@ function renderRanking(key){
     return fila+trend;
   }).join("");
 
+  const subUnidad=metrica.key==='ot'?'':'<div class="th-sub">(Hr:Min)</div>';
+
   document.getElementById("zona-ranking-ger").innerHTML=`
     <div class="panel-ranking">
       <div class="panel-titulo">Ranking - "${metrica.label}" - Promedio por Día Operado - Periodo: "${etiquetaPeriodo}"</div>
       <div class="ranking-box">
-        <div class="ranking-header"><span></span><span>Tablet</span><span>Servicio</span><span>Base</span><span></span><span style="text-align:right">${metrica.colRanking}</span></div>
+        <div class="ranking-header"><span></span><span>Tablet</span><span>Servicio</span><span>Base</span><span></span><span style="text-align:center">${metrica.colRanking}${subUnidad}</span></div>
         ${filasHtml}
       </div>
     </div>`;
@@ -410,7 +413,7 @@ cambiarPeriodoGerencia(periodoDefault);
 // que GitHub Pages / el navegador sigan mostrando una version vieja
 // cacheada despues de actualizar el archivo.
 (function(){
-  const VERSION="202607281431";
+  const VERSION="202607281549";
   const params=new URLSearchParams(window.location.search);
   if(params.get("v")!==VERSION){
     params.set("v",VERSION);
