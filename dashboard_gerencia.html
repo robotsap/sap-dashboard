@@ -34,7 +34,7 @@
   .tabla-rapida-box{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
   .tabla-rapida-titulo{font-size:13px;color:#1e3a8a;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
   .tabla-rapida{width:100%;border-collapse:collapse;font-size:13px;}
-  .tabla-rapida th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px;text-align:right;padding:9px 12px;border-bottom:1px solid var(--border);}
+  .tabla-rapida th{background:#f8fafc;color:var(--muted);font-size:11px;letter-spacing:.3px;text-align:right;padding:9px 12px;border-bottom:1px solid var(--border);}
   .tabla-rapida th:nth-child(1),.tabla-rapida th:nth-child(2),.tabla-rapida th:nth-child(3){text-align:left;}
   .tabla-rapida td{padding:8px 12px;border-top:1px solid var(--border);text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:var(--text);}
   .tabla-rapida td:nth-child(1),.tabla-rapida td:nth-child(2),.tabla-rapida td:nth-child(3){text-align:left;font-family:'Inter',sans-serif;font-weight:500;color:var(--text2);}
@@ -221,8 +221,8 @@ function renderTablaRapida(){
     <div class="tabla-rapida-box">
       <table class="tabla-rapida">
         <thead><tr>
-          <th>Tablet</th><th>Servicio</th><th>Base</th>
-          <th>T. Op.</th><th>T. Traslado</th><th>T. PRP</th><th>OT/d</th>
+          <th>tablet</th><th>servicio</th><th>base</th>
+          <th>Tiempo Oper. (Hr:Min)</th><th>Tiempo Trasl. (Hr:Min)</th><th>Tiempo PRP (Hr:Min)</th><th>OT / Dia</th>
         </tr></thead>
         <tbody>${filasHtml}</tbody>
       </table>
@@ -376,7 +376,7 @@ cambiarPeriodoGerencia(VALOR_ACUMULADO);
 // que GitHub Pages / el navegador sigan mostrando una version vieja
 // cacheada despues de actualizar el archivo.
 (function(){
-  const VERSION="202607280919";
+  const VERSION="202607280949";
   const params=new URLSearchParams(window.location.search);
   if(params.get("v")!==VERSION){
     params.set("v",VERSION);
