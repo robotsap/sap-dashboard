@@ -109,8 +109,8 @@ const METRICAS_GER=[
   {key:'varios',     tipo:'tiempo', label:'Tiempos Varios (Carga de Combustible, Retiro Matrls., Gomería, Mov. en Base)', campo:'tiempo_varios', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
   {key:'charla',     tipo:'tiempo', label:'Tiempo de Charla de Seguridad', campo:'tiempo_charla_seguridad', ordenPeorPrimero:'desc', colRanking:'Hs / Parte'},
   {key:'ot',         tipo:'cantidad', label:'Promedio de OT x Día', campo:null, ordenPeorPrimero:'asc',  colRanking:'OT / Parte'},
-  {key:'extension',  tipo:'cantidad', label:'Cantidad de Extensión de Jornada', campo:'cant_extension_jornada', ordenPeorPrimero:'desc', colRanking:'Cant / Parte'},
-  {key:'nocturna',   tipo:'cantidad', label:'Cantidad de Activaciones Nocturnas', campo:'cant_activaciones_nocturnas', ordenPeorPrimero:'desc', colRanking:'Cant / Parte'}
+  {key:'extension',  tipo:'cantidad', label:'Cantidad de Extensión de Jornada', campo:'cant_extension_jornada', ordenPeorPrimero:'desc', colRanking:'Cantidad'},
+  {key:'nocturna',   tipo:'cantidad', label:'Cantidad de Activaciones Nocturnas', campo:'cant_activaciones_nocturnas', ordenPeorPrimero:'desc', colRanking:'Cantidad'}
 ];
 
 // Dashboard Gerencia trabaja SOLO con valores mensuales (sin acumulado
@@ -213,6 +213,11 @@ function construirGrupoAgregado(listaPeriodos, nombreGrupo){
 // nuevas). Devuelve 0 si no hay partes validos en el periodo (no se
 // oculta la fila, se muestra en 0).
 function valorMetrica(obj, metrica){
+  // Extension de Jornada y Activaciones Nocturnas son un CONTEO directo
+  // (cuantas veces ocurrio), no un promedio -- no se divide por partes_validos.
+  if(metrica.key==='extension')return obj.cant_extension_jornada||0;
+  if(metrica.key==='nocturna')return obj.cant_activaciones_nocturnas||0;
+
   const partes=obj.partes_validos||0;
   if(!partes)return 0;
   if(metrica.key==='ot')return sumaLista(obj.ot_lista)/partes;
@@ -233,9 +238,11 @@ function formatoHoraMin(valorDecimal){
 }
 
 // Texto a mostrar para un valor, segun el tipo de metrica: h:mm para las
-// de tiempo, decimal con 2 decimales para las de cantidad (OT, Extension
-// de Jornada, Activaciones Nocturnas -- no son tiempos).
+// de tiempo; entero (sin decimales) para Extension de Jornada y
+// Activaciones Nocturnas (son un conteo, no un promedio); decimal con 2
+// decimales para OT/Parte (promedio diario, si es una cantidad fraccionaria).
 function formatoValor(valorDecimal, metrica){
+  if(metrica.key==='extension'||metrica.key==='nocturna')return String(Math.round(valorDecimal));
   return metrica.tipo==='cantidad'?valorDecimal.toFixed(2):formatoHoraMin(valorDecimal);
 }
 
@@ -446,7 +453,7 @@ cambiarPeriodoGerencia(periodoDefault);
 // que GitHub Pages / el navegador sigan mostrando una version vieja
 // cacheada despues de actualizar el archivo.
 (function(){
-  const VERSION="202607291740";
+  const VERSION="202607291744";
   const params=new URLSearchParams(window.location.search);
   if(params.get("v")!==VERSION){
     params.set("v",VERSION);
