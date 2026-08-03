@@ -9,7 +9,8 @@
   :root{--bg:#f0f2f5;--surface:#ffffff;--border:#e2e8f0;--card-bg:#ffffff;--accent:#FFD700;--orange:#f97316;--text:#0f172a;--text2:#475569;--muted:#94a3b8;--topbar:#0f172a;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:0 0 48px;}
-  .topbar{background:var(--topbar);border-bottom:3px solid var(--accent);padding:14px 32px;display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15);}
+  .topbar{background:var(--topbar);border-bottom:3px solid var(--accent);padding:14px 32px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15);}
+  .topbar-fila1{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;}
   .topbar-titulo{display:flex;align-items:center;gap:12px;}
   .topbar-logo{width:38px;height:38px;border-radius:8px;object-fit:cover;}
   .topbar-titulo-texto{display:flex;flex-direction:column;gap:2px;}
@@ -17,19 +18,23 @@
   .topbar-nombre-acento{color:var(--accent);}
   .topbar-actualizado{font-size:11px;color:#94a3b8;}
   .topbar-periodo{display:flex;align-items:center;gap:10px;}
-  .grupo-tabs{display:flex;gap:8px;margin-bottom:16px;}
-  .grupo-tab{padding:8px 20px;border-radius:8px;font-size:14px;font-weight:700;color:var(--text2);background:var(--card-bg);border:1px solid var(--border);}
-  .grupo-tab-activo{background:#1e293b;color:#ffffff;border-color:#1e293b;}
+  .grupo-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-left:calc(31% + 12px);}
+  .grupo-tab{padding:8px 20px;border-radius:8px;font-size:14px;font-weight:700;background:#1e293b;color:#cbd5e1;border:1px solid #334155;cursor:pointer;}
+  .grupo-tab-activo{background:var(--accent);color:#0f172a;border-color:var(--accent);cursor:default;}
+  .grupo-tab-placeholder{color:#64748b;cursor:not-allowed;}
   .periodo-label{color:#cbd5e1;font-size:13px;font-weight:600;}
   .select-wrap{position:relative;}
   select{appearance:none;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:7px 32px 7px 14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#ffffff;cursor:pointer;outline:none;}
   select:hover,select:focus{border-color:var(--accent);}
   .select-arrow{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--accent);font-size:10px;}
   .main-content{padding:24px 32px;}
+  .turno-tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .turno-tab{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;color:var(--text2);background:var(--card-bg);border:1px solid var(--border);cursor:pointer;}
+  .turno-tab-activo{background:var(--orange);color:#ffffff;border-color:var(--orange);cursor:default;}
   .app-split-ger{display:flex;gap:20px;align-items:flex-start;}
   .panel-izq-ger{flex:0 0 30%;min-width:280px;position:sticky;top:90px;}
   .panel-der-ger{flex:1;min-width:0;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);min-height:200px;}
-  @media(max-width:1000px){.app-split-ger{flex-direction:column;}.panel-izq-ger{flex:1 1 auto;position:static;width:100%;min-width:0;}.main-content{padding:16px;}.topbar{padding:12px 16px;}}
+  @media(max-width:1000px){.app-split-ger{flex-direction:column;}.panel-izq-ger{flex:1 1 auto;position:static;width:100%;min-width:0;}.main-content{padding:16px;}.topbar{padding:12px 16px;}.grupo-tabs{margin-left:0;}}
   .grupo-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);}
   .card-soporte{border-top:4px solid var(--orange);}
   .grupo-header{padding:16px 22px 13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:#fafbfc;}
@@ -84,25 +89,35 @@
 <body>
 
 <div class="topbar">
-  <div class="topbar-titulo">
-    <img class="topbar-logo" src="data:image/png;base64,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" alt="logo"/>
-    <div class="topbar-titulo-texto">
-      <div class="topbar-nombre">Dashboard <span class="topbar-nombre-acento">Tiempos Operativos</span></div>
-      <div class="topbar-actualizado">Actualizado: 01/08/2026 10:51</div>
+  <div class="topbar-fila1">
+    <div class="topbar-titulo">
+      <img class="topbar-logo" src="data:image/png;base64,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" alt="logo"/>
+      <div class="topbar-titulo-texto">
+        <div class="topbar-nombre">Dashboard <span class="topbar-nombre-acento">Tiempos Operativos</span></div>
+        <div class="topbar-actualizado">Actualizado: 03/08/2026 14:41</div>
+      </div>
+    </div>
+    <div class="topbar-periodo">
+      <span class="periodo-label">Periodo</span>
+      <div class="select-wrap">
+        <select id="selector-periodo-ger" onchange="cambiarPeriodoGerencia(this.value)"></select>
+        <span class="select-arrow">&#9662;</span>
+      </div>
     </div>
   </div>
-  <div class="topbar-periodo">
-    <span class="periodo-label">Periodo</span>
-    <div class="select-wrap">
-      <select id="selector-periodo-ger" onchange="cambiarPeriodoGerencia(this.value)"></select>
-      <span class="select-arrow">&#9662;</span>
-    </div>
+  <div class="grupo-tabs">
+    <div class="grupo-tab grupo-tab-placeholder" onclick="seleccionarGrupoTab('OMF')">OMF</div>
+    <div class="grupo-tab grupo-tab-activo" onclick="seleccionarGrupoTab('Soporte')">Soporte</div>
+    <div class="grupo-tab grupo-tab-placeholder" onclick="seleccionarGrupoTab('Construcciones')">Construcciones</div>
+    <div class="grupo-tab grupo-tab-placeholder" onclick="seleccionarGrupoTab('Tareas Grales')">Tareas Grales</div>
+    <div class="grupo-tab grupo-tab-placeholder" onclick="seleccionarGrupoTab('Mecánica')">Mecánica</div>
   </div>
 </div>
 
 <div class="main-content">
-  <div class="grupo-tabs">
-    <div class="grupo-tab grupo-tab-activo">Soporte</div>
+  <div class="turno-tabs">
+    <div class="turno-tab turno-tab-activo" id="tab-turno-diurno" onclick="seleccionarTurno('diurno')">Soporte Diurno</div>
+    <div class="turno-tab" id="tab-turno-nocturno" onclick="seleccionarTurno('nocturno')">Soporte Nocturno</div>
   </div>
   <div class="app-split-ger">
     <div class="panel-izq-ger" id="tarjeta-soporte"></div>
@@ -139,11 +154,24 @@ const METRICAS_GER=[
 // DATA.periodos (ej. "Junio_26").
 let periodoActual=null;
 let metricaAbierta=null;
+let turnoActivo='diurno';   // 'diurno' | 'nocturno' -- que tarjeta/turno esta seleccionado
 let grupoAgregadoSoporte=null;
-let agregadoTarjeta=null;
+let agregadoDiurno=null;
+let agregadoNocturno=null;
 
 // Devuelve el "label" legible de un periodo (ej. "Junio 26") a partir de
 // su "nombre" (ej. "Junio_26"), buscandolo en DATA.periodos.
+// Tabs de grupo (OMF, Soporte, Construcciones, Tareas Grales, Mecánica).
+// Por ahora solo "Soporte" tiene datos reales -- el resto son
+// placeholders visuales, listos para cuando se sume la info de cada uno.
+function seleccionarGrupoTab(nombreGrupo){
+  if(nombreGrupo!=='Soporte'){
+    console.log(`Grupo "${nombreGrupo}" todavía no tiene datos cargados.`);
+    return;
+  }
+  // Soporte ya está activo -- no hay nada que cambiar por ahora.
+}
+
 function labelDePeriodo(nombre){
   const p=DATA.periodos.find(p=>p.nombre===nombre);
   return p?p.label:String(nombre||"").replace(/_/g," ");
@@ -225,28 +253,36 @@ function construirGrupoAgregado(listaPeriodos, nombreGrupo){
   return acc;
 }
 
-// Servicios que NO se contemplan en los promedios de la TARJETA
-// izquierda (aunque sí figuran, cada una individualmente, en los
-// rankings): las cuadrillas nocturnas (SOP. N., ej. 131 y 363) tienen
-// 12hs de turno normal en vez de 8, así que mezclarlas en el promedio
-// grupal de la tarjeta infla los tiempos por encima de lo real -- pedido
-// explicito de Luise. Solo las SOP. D. entran en TODAS las métricas de
-// la tarjeta (tiempos, Total, OT/Día, Extensión, Nocturna).
-const SERVICIOS_EXCLUIDOS_TARJETA=new Set(["SOP. N."]);
+// Servicio nocturno (SOP. N., ej. 131 y 363): 12hs de turno normal en
+// vez de 8 -- por eso van en su PROPIA tarjeta ("Soporte Nocturno") y
+// su propio ranking, separados de las diurnas (SOP. D., "Soporte
+// Diurno") -- pedido explicito de Luise. El horario normal usado para
+// calcular sus horas ya viene resuelto desde dashboard_generator.py
+// (20hs de un dia a 08hs del siguiente, todos los dias).
+const SERVICIO_NOCTURNO="SOP. N.";
 
 // A partir del agregado COMPLETO del grupo (que incluye todas las
-// cuadrillas, para ranking/tabla), arma un segundo agregado que excluye
-// los servicios de SERVICIOS_EXCLUIDOS_TARJETA -- este es el que usa
-// SOLO la tarjeta izquierda.
-function construirAgregadoTarjeta(grupoCompleto){
+// cuadrillas, para ranking/tabla), arma un agregado que incluye SOLO
+// las cuadrillas nocturnas o SOLO las diurnas, segun el parametro.
+function construirAgregadoPorTurno(grupoCompleto, turno){
   const acc={ot_lista:[]};
   CAMPOS_SUMABLES.forEach(f=>{acc[f]=0;});
   grupoCompleto.cuadrillas.forEach(c=>{
-    if(SERVICIOS_EXCLUIDOS_TARJETA.has(c.servicio))return;
+    const esNocturna=c.servicio===SERVICIO_NOCTURNO;
+    const incluir=turno==='nocturno'?esNocturna:!esNocturna;
+    if(!incluir)return;
     CAMPOS_SUMABLES.forEach(f=>{acc[f]+=c[f]||0;});
     if(c.ot_lista)acc.ot_lista.push(...c.ot_lista);
   });
   return acc;
+}
+
+// Cuadrillas individuales de un turno (para el ranking de cada tarjeta).
+function cuadrillasDeTurno(grupoCompleto, turno){
+  return grupoCompleto.cuadrillas.filter(c=>{
+    const esNocturna=c.servicio===SERVICIO_NOCTURNO;
+    return turno==='nocturno'?esNocturna:!esNocturna;
+  });
 }
 
 
@@ -305,7 +341,7 @@ function renderTablaRapida(){
     `<th><div>${m.labelTabla||m.label}</div><div class="th-sub">(Hr:Min)</div></th>`
   ).join("");
 
-  const filasHtml=grupoAgregadoSoporte.cuadrillas.map(c=>{
+  const filasHtml=cuadrillasDeTurno(grupoAgregadoSoporte, turnoActivo).map(c=>{
     const celdas=metricasTiempo.map(m=>`<td>${formatoValor(valorMetrica(c,m),m)}</td>`).join("");
     return `<tr>
       <td>${limpiarNombre(c.nombre)||c.codigo}</td>
@@ -315,8 +351,10 @@ function renderTablaRapida(){
     </tr>`;
   }).join("");
 
+  const etiquetaTurnoTabla=turnoActivo==="nocturno"?"Soporte Nocturno":"Soporte Diurno";
+
   document.getElementById("tabla-rapida-ger").innerHTML=`
-    <div class="panel-titulo">Promedio por Día Operado - Mes ${labelDePeriodo(periodoActual)}</div>
+    <div class="panel-titulo">Promedio por Día Operado - ${etiquetaTurnoTabla} - Mes ${labelDePeriodo(periodoActual)}</div>
     <div class="tabla-rapida-box">
       <table class="tabla-rapida">
         <thead><tr>
@@ -333,7 +371,8 @@ function cambiarPeriodoGerencia(valor){
   cuadrillaAbierta=null;
   const listaEfectiva=DATA.periodos.filter(p=>p.nombre===valor);
   grupoAgregadoSoporte=construirGrupoAgregado(listaEfectiva,"Soporte");
-  agregadoTarjeta=construirAgregadoTarjeta(grupoAgregadoSoporte);
+  agregadoDiurno=construirAgregadoPorTurno(grupoAgregadoSoporte,"diurno");
+  agregadoNocturno=construirAgregadoPorTurno(grupoAgregadoSoporte,"nocturno");
   renderTarjetaSoporte();
   renderTablaRapida();
   if(metricaAbierta)renderRanking(metricaAbierta);
@@ -342,32 +381,50 @@ function cambiarPeriodoGerencia(valor){
   }
 }
 
+// Selector Soporte Diurno / Soporte Nocturno: cambia que tarjeta se ve a
+// la izquierda Y a que cuadrillas quedan acotados la tabla y el ranking
+// de la derecha (5 diurnas o solo 131/363 nocturnas).
+function seleccionarTurno(turno){
+  if(turnoActivo===turno)return;
+  turnoActivo=turno;
+  metricaAbierta=null;
+  cuadrillaAbierta=null;
+  document.getElementById("tab-turno-diurno").classList.toggle("turno-tab-activo", turno==="diurno");
+  document.getElementById("tab-turno-nocturno").classList.toggle("turno-tab-activo", turno==="nocturno");
+  renderTarjetaSoporte();
+  renderTablaRapida();
+  document.getElementById("zona-ranking-ger").innerHTML=`<div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>`;
+}
+
 function renderTarjetaSoporte(){
   const metricasTiempo=METRICAS_GER.filter(m=>m.tipo==='tiempo');
   const metricasCantidad=METRICAS_GER.filter(m=>m.tipo==='cantidad');
 
-  // La tarjeta izquierda usa SIEMPRE agregadoTarjeta (excluye SOP. N.,
-  // ej. 131 y 363) -- esas cuadrillas solo aparecen individualmente en
-  // los rankings, no en los promedios grupales de la tarjeta.
+  // Arma la tarjeta completa (tiempos + burbuja de cantidades) para el
+  // turno actualmente seleccionado (turnoActivo), sobre el agregado que
+  // corresponda. Solo se muestra UNA tarjeta a la vez -- la otra se ve
+  // cambiando el tab "Soporte Diurno" / "Soporte Nocturno" de arriba.
+  const agregado=turnoActivo==="nocturno"?agregadoNocturno:agregadoDiurno;
+  const nombreCard=turnoActivo==="nocturno"?"Soporte Nocturno":"Soporte Diurno";
+  const tituloSeccion=turnoActivo==="nocturno"?"Tiempos Diarios de Sop. Nocturno":"Tiempos Diarios de Sop. Diurno";
+
   const construirFila=(m)=>{
-    const v=valorMetrica(agregadoTarjeta,m);
+    const v=valorMetrica(agregado,m);
     const chequeado=metricaAbierta===m.key?"checked":"";
     return `<div class="fila-metrica">
       <label><input type="checkbox" ${chequeado} onchange="toggleMetrica('${m.key}')"/> ${m.label}</label>
       <span class="valor">${formatoValor(v,m)}</span>
     </div>`;
   };
-
   const filasTiempo=metricasTiempo.map(construirFila).join("");
   const filasCantidad=metricasCantidad.map(construirFila).join("");
-
-  const totalTiempo=metricasTiempo.reduce((s,m)=>s+valorMetrica(agregadoTarjeta,m),0);
+  const totalTiempo=metricasTiempo.reduce((s,m)=>s+valorMetrica(agregado,m),0);
 
   document.getElementById("tarjeta-soporte").innerHTML=`
     <div class="grupo-card card-soporte">
-      <div class="grupo-header"><span class="grupo-dot"></span><span class="grupo-nombre">Soporte</span></div>
+      <div class="grupo-header"><span class="grupo-dot"></span><span class="grupo-nombre">${nombreCard}</span></div>
       <div class="tarjeta-seccion-header">
-        <span class="titulo-seccion">Tiempos Diarios de Sop. Diurno</span>
+        <span class="titulo-seccion">${tituloSeccion}</span>
         <span class="col-header"><div>Hs / Parte</div><div class="th-sub">(Hr:Min)</div></span>
       </div>
       ${filasTiempo}
@@ -391,17 +448,20 @@ function toggleMetrica(key){
   else document.getElementById("zona-ranking-ger").innerHTML=`<div class="panel-placeholder">Tildá una métrica de la tarjeta para ver el ranking de cuadrillas.</div>`;
 }
 
-// Ranking con TODAS las cuadrillas del grupo (aunque tengan 0), con barra
-// horizontal proporcional al valor. Al hacer click en una fila, la
-// evolucion mensual de esa cuadrilla se inserta INMEDIATAMENTE DEBAJO de
-// esa misma fila (empujando el resto del ranking hacia abajo), dejando
-// bien claro a que cuadrilla corresponde.
+// Ranking con las cuadrillas del TURNO ACTIVO (diurno: 5 cuadrillas
+// SOP. D.; nocturno: solo 131 y 363, SOP. N.), con barra horizontal
+// proporcional al valor. Al hacer click en una fila, la evolucion
+// mensual de esa cuadrilla se inserta INMEDIATAMENTE DEBAJO de esa
+// misma fila (empujando el resto del ranking hacia abajo), dejando bien
+// claro a que cuadrilla corresponde.
 function renderRanking(key){
   const metrica=METRICAS_GER.find(m=>m.key===key);
-  let filas=grupoAgregadoSoporte.cuadrillas.map(c=>Object.assign({}, c, {valor:valorMetrica(c,metrica)}));
+  const cuadrillasTurno=cuadrillasDeTurno(grupoAgregadoSoporte, turnoActivo);
+  let filas=cuadrillasTurno.map(c=>Object.assign({}, c, {valor:valorMetrica(c,metrica)}));
   filas.sort((a,b)=>metrica.ordenPeorPrimero==='desc'?b.valor-a.valor:a.valor-b.valor);
 
   const etiquetaPeriodo=labelDePeriodo(periodoActual);
+  const etiquetaTurno=turnoActivo==='nocturno'?"Soporte Nocturno":"Soporte Diurno";
   const maxVal=Math.max(...filas.map(f=>f.valor),0.0001);
 
   const filasHtml=filas.map((c,i)=>{
@@ -424,7 +484,7 @@ function renderRanking(key){
 
   document.getElementById("zona-ranking-ger").innerHTML=`
     <div class="panel-ranking">
-      <div class="panel-titulo">Ranking - "${metrica.label}" - Promedio por Día Operado - Periodo: "${etiquetaPeriodo}"</div>
+      <div class="panel-titulo">Ranking - "${metrica.label}" - ${etiquetaTurno} - Promedio por Día Operado - Periodo: "${etiquetaPeriodo}"</div>
       <div class="ranking-box">
         <div class="ranking-header"><span></span><span>Tablet</span><span>Servicio</span><span>Base</span><span></span><span style="text-align:center">${metrica.colRanking}${subUnidad}</span></div>
         ${filasHtml}
@@ -497,7 +557,7 @@ cambiarPeriodoGerencia(periodoDefault);
 // que GitHub Pages / el navegador sigan mostrando una version vieja
 // cacheada despues de actualizar el archivo.
 (function(){
-  const VERSION="202608011051";
+  const VERSION="202608031441";
   const params=new URLSearchParams(window.location.search);
   if(params.get("v")!==VERSION){
     params.set("v",VERSION);
