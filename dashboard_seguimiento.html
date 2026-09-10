@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Seguimiento de Descuentos, Reclamos y Acciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F6F2; --surface:#FFFFFF; --border:#E7E3DA;
+    --accent:#B5541C; --accent-soft:#FBE9DD;
+    --ink:#17181C; --ink-soft:#6B7280; --muted:#9CA3AF;
+    --ok:#276749; --ok-soft:#E1F3E7;
+    --danger:#C0392B; --danger-soft:#FBEAE7;
+    --progress:#B7791F; --progress-soft:#FCF1D8;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;}
+  .num{font-family:'DM Mono',monospace;}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:28px 36px 18px;}
+  .header-top{display:flex;align-items:flex-start;gap:16px;}
+  .logo{width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+  .eyebrow{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px;}
+  h1{font-size:26px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em;}
+  h1 .accent{color:var(--accent);}
+  .desc{color:var(--ink-soft);font-size:13.5px;max-width:640px;line-height:1.5;margin:0;}
+  .periodos{display:flex;gap:8px;flex-wrap:wrap;padding:18px 36px 4px;}
+  .pill{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:8px 16px;cursor:pointer;font-size:13px;}
+  .pill .pill-sub{color:var(--ink-soft);font-size:11px;margin-left:6px;}
+  .pill.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;}
+  main{padding:20px 36px 48px;max-width:1100px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .kpi.aviso{border-color:var(--danger);background:var(--danger-soft);}
+  .kpi-label{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+  .kpi-valor{font-size:30px;font-weight:700;color:var(--accent);}
+  .kpi.aviso .kpi-valor{color:var(--danger);}
+  .kpi-sub{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  .vacio{padding:48px 24px;text-align:center;color:var(--ink-soft);background:var(--surface);border:1px solid var(--border);border-radius:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <img class="logo" src="data:image/png;base64,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" alt="logo"/>
+    <div>
+      <div class="eyebrow">PETROSAR</div>
+      <h1>Seguimiento de Descuentos, <span class="accent">Reclamos y Acciones</span></h1>
+      <p class="desc">Estado de gestión de los descuentos operativos: cuántos fueron reclamados, cuántos tuvieron una acción correctiva y cuántos siguen sin gestionar.</p>
+    </div>
+  </div>
+</header>
+
+<div class="periodos" id="periodos"></div>
+
+<main id="main"><div class="vacio">Cargando…</div></main>
+
+<script>
+const DATA = {"generado": "10/09/2026 10:16", "periodos": []};
+
+let periodoActual = DATA.periodos.length ? DATA.periodos[DATA.periodos.length - 1].nombre : null;
+
+function pintarPeriodos() {
+  const cont = document.getElementById('periodos');
+  cont.innerHTML = '';
+  DATA.periodos.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'pill' + (p.nombre === periodoActual ? ' active' : '');
+    el.innerHTML = p.label + '<span class="pill-sub">' + p.total_descuentos + 'd · ' + p.total_horas.toFixed(1) + 'h</span>';
+    el.onclick = () => { periodoActual = p.nombre; pintarPeriodos(); pintarKpis(); };
+    cont.appendChild(el);
+  });
+}
+
+function pintarKpis() {
+  const main = document.getElementById('main');
+  const p = DATA.periodos.find(x => x.nombre === periodoActual);
+  if (!p) { main.innerHTML = '<div class="vacio">No hay datos de seguimiento para este período todavía.</div>'; return; }
+
+  const pctReclamado = p.total_horas ? (100 * p.horas_reclamado / p.total_horas) : 0;
+  const pctAccion = p.total_horas ? (100 * p.horas_accion / p.total_horas) : 0;
+  const pctSinGestionar = p.total_horas ? (100 * p.horas_sin_gestionar / p.total_horas) : 0;
+  const pctCerrado = p.total_horas ? (100 * p.horas_cerrado / p.total_horas) : 0;
+
+  main.innerHTML = `
+    <div class="grid">
+      <div class="kpi">
+        <div class="kpi-label">Horas Descontadas</div>
+        <div class="kpi-valor num">${p.total_horas.toFixed(1)}h</div>
+        <div class="kpi-sub">${p.total_descuentos} descuentos</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">% Reclamado</div>
+        <div class="kpi-valor num">${pctReclamado.toFixed(1)}%</div>
+        <div class="kpi-sub">${p.cant_reclamado} descuentos · ${p.horas_reclamado.toFixed(1)}h</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">% Con Acción Correctiva</div>
+        <div class="kpi-valor num">${pctAccion.toFixed(1)}%</div>
+        <div class="kpi-sub">${p.cant_accion} descuentos · ${p.horas_accion.toFixed(1)}h</div>
+      </div>
+      <div class="kpi aviso">
+        <div class="kpi-label">% Sin Gestionar</div>
+        <div class="kpi-valor num">${pctSinGestionar.toFixed(1)}%</div>
+        <div class="kpi-sub">${p.cant_sin_gestionar} descuentos · ${p.horas_sin_gestionar.toFixed(1)}h</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">% Cerrado</div>
+        <div class="kpi-valor num">${pctCerrado.toFixed(1)}%</div>
+        <div class="kpi-sub">${p.cant_cerrado} descuentos · ${p.horas_cerrado.toFixed(1)}h</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Horas Devueltas</div>
+        <div class="kpi-valor num">${p.horas_devueltas.toFixed(1)}h</div>
+        <div class="kpi-sub">de reclamos exitosos</div>
+      </div>
+    </div>`;
+}
+
+if (DATA.periodos.length) {
+  pintarPeriodos();
+  pintarKpis();
+} else {
+  document.getElementById('main').innerHTML = '<div class="vacio">Todavía no hay períodos con datos en Seguimiento de Descuentos.</div>';
+}
+</script>
+</body>
+</html>
