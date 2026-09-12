@@ -1,0 +1,605 @@
+<title>Descuentos por Falta de Fotos</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:            #f6f5f1;
+    --surface:         #fdfcfa;
+    --surface-raised:  #ffffff;
+    --border:          rgba(20,22,26,0.11);
+    --border-strong:   rgba(20,22,26,0.20);
+    --text-primary:    #14161a;
+    --text-secondary:  #53564f;
+    --text-muted:      #8b8d84;
+    --accent:          #b5541c;
+    --accent-ink:      #ffffff;
+    --accent-soft:     #f2e3d4;
+    --track:           #eceae3;
+    --series-1:        #2a78d6;
+    --series-2:        #eb6834;
+    --series-3:        #1baf7a;
+    --series-4:        #eda100;
+    --good:            #0ca30c;
+    --warning:         #c98500;
+    --critical:        #d03b3b;
+    --shadow: 0 1px 2px rgba(20,22,26,0.06), 0 8px 24px -12px rgba(20,22,26,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:            #121210;
+      --surface:         #1a1a17;
+      --surface-raised:  #201f1c;
+      --border:          rgba(255,255,255,0.10);
+      --border-strong:   rgba(255,255,255,0.18);
+      --text-primary:    #f5f4f0;
+      --text-secondary:  #c3c2b7;
+      --text-muted:      #8f8d82;
+      --accent:          #e08a4f;
+      --accent-ink:      #1a1208;
+      --accent-soft:     #3a2a1a;
+      --track:           #2b2a25;
+      --series-1:        #3987e5;
+      --series-2:        #e0803f;
+      --series-3:        #199e70;
+      --series-4:        #c98500;
+      --good:            #3fbf3f;
+      --warning:         #e0a72f;
+      --critical:        #e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:            #121210;
+    --surface:         #1a1a17;
+    --surface-raised:  #201f1c;
+    --border:          rgba(255,255,255,0.10);
+    --border-strong:   rgba(255,255,255,0.18);
+    --text-primary:    #f5f4f0;
+    --text-secondary:  #c3c2b7;
+    --text-muted:      #8f8d82;
+    --accent:          #e08a4f;
+    --accent-ink:      #1a1208;
+    --accent-soft:     #3a2a1a;
+    --track:           #2b2a25;
+    --series-1:        #3987e5;
+    --series-2:        #e0803f;
+    --series-3:        #199e70;
+    --series-4:        #c98500;
+    --good:            #3fbf3f;
+    --warning:         #e0a72f;
+    --critical:        #e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing: border-box; }
+  body{
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .num, .tabular{ font-variant-numeric: tabular-nums; }
+  .mono{ font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 28px 24px 64px; }
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:24px;
+    padding-bottom: 18px; margin-bottom: 16px; border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono", monospace; font-size:11.5px; letter-spacing:.12em; text-transform:uppercase;
+    color: var(--accent); font-weight:600; margin:0 0 8px;
+  }
+  h1{
+    font-family:"Archivo Expanded", "Public Sans", sans-serif;
+    font-weight:700; font-size: clamp(26px, 3.4vw, 36px); letter-spacing:-0.01em;
+    margin:0 0 6px; text-wrap: balance;
+  }
+  .subtitle{ color: var(--text-secondary); font-size:14.5px; max-width:56ch; line-height:1.5; margin:0; }
+  .live-badge{
+    display:inline-flex; align-items:center; gap:6px; margin:10px 0 0; font-size:11.5px;
+    font-family:"IBM Plex Mono",monospace; color: var(--text-muted); letter-spacing:.02em;
+  }
+  .live-badge .dot{ width:7px; height:7px; border-radius:50%; background: var(--text-muted); flex:none; }
+  .live-badge.is-live .dot{ background: var(--good); box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 20%, transparent); }
+  .live-badge.is-live{ color: var(--good); }
+  .live-badge.is-static .dot{ background: var(--text-muted); }
+  .meta-box{
+    display:grid; grid-template-columns: auto auto; gap: 4px 14px; font-size:12.5px;
+    color: var(--text-secondary); text-align:right; white-space:nowrap;
+  }
+  .meta-box dt{ color: var(--text-muted); }
+  .meta-box dd{ margin:0; font-family:"IBM Plex Mono",monospace; color: var(--text-primary); }
+
+  /* ---------- Period filter bar ---------- */
+  .period-bar{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:22px;
+  }
+  .period-bar .pb-label{ font-size:11.5px; color:var(--text-muted); letter-spacing:.04em; text-transform:uppercase; margin-right:4px; }
+  .pill{
+    font: inherit; font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+    color: var(--text-secondary); background: var(--surface); border:1px solid var(--border-strong);
+    border-radius:999px; padding:7px 14px; cursor:pointer; display:flex; align-items:baseline; gap:6px;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  .pill:hover{ border-color: var(--accent); color: var(--text-primary); }
+  .pill .n{ color: var(--text-muted); font-size:10.5px; }
+  .pill.active{ background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .pill.active .n{ color: var(--accent-ink); opacity:.8; }
+
+  /* ---------- KPI strip ---------- */
+  .kpis{
+    display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; margin-bottom: 26px;
+  }
+  .kpi{
+    background: var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding: 14px 14px 12px; box-shadow: var(--shadow);
+  }
+  .kpi .label{ font-size:11px; color: var(--text-muted); letter-spacing:.03em; text-transform:uppercase; margin-bottom:6px; }
+  .kpi .value{ font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:22px; line-height:1.1; }
+  .kpi .value .unit{ font-size:12px; color:var(--text-secondary); font-weight:500; margin-left:3px; }
+  .kpi.accent{ border-color: var(--accent); background: var(--accent-soft); }
+  .kpi.accent .value{ color: var(--accent); }
+
+  /* ---------- Panels ---------- */
+  .panel{
+    background: var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow: var(--shadow); margin-bottom: 18px; overflow:hidden;
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding: 16px 18px 12px; border-bottom: 1px solid var(--border);
+  }
+  .panel-head h2{ font-family:"Archivo Expanded",sans-serif; font-size:16.5px; font-weight:600; margin:0; }
+  .panel-head .hint{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .panel-body{ padding: 14px 18px 18px; }
+
+  .row-2{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; }
+
+  /* ---------- Controls ---------- */
+  .controls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .seg{ display:flex; border:1px solid var(--border-strong); border-radius:8px; overflow:hidden; }
+  .seg button{
+    font: inherit; font-size:12.5px; font-weight:600; color:var(--text-secondary);
+    background: var(--surface-raised); border:none; padding:6px 12px; cursor:pointer;
+    border-right: 1px solid var(--border); transition: background .12s, color .12s;
+  }
+  .seg button:last-child{ border-right:none; }
+  .seg button:hover{ background: var(--track); }
+  .seg button.active{ background: var(--accent); color: var(--accent-ink); }
+  .search{
+    font: inherit; font-size:13px; padding:6px 10px; border-radius:8px;
+    border:1px solid var(--border-strong); background:var(--surface-raised); color:var(--text-primary);
+    min-width: 190px;
+  }
+  .search:focus, button:focus-visible{ outline: 2px solid var(--accent); outline-offset:1px; }
+  .search::placeholder{ color: var(--text-muted); }
+  .linklike{
+    font: inherit; font-size:12.5px; font-weight:600; color:var(--accent); background:none; border:none;
+    cursor:pointer; padding:4px 2px;
+  }
+  .linklike:hover{ text-decoration: underline; }
+
+  /* ---------- Bar rows (ranking) ---------- */
+  .barlist{ display:flex; flex-direction:column; gap:3px; }
+  .bar-row{
+    display:grid; grid-template-columns: 26px minmax(0,1fr) 108px; align-items:center; gap:10px;
+    padding: 5px 4px; border-radius:6px;
+  }
+  .bar-row:hover{ background: var(--track); }
+  .bar-row .rank{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--text-muted); text-align:right; }
+  .bar-row .rank.top{ color: var(--accent); font-weight:700; }
+  .bar-track{ position:relative; }
+  .bar-name{
+    font-size:12.8px; color:var(--text-primary); margin-bottom:3px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .bar-shell{ background: var(--track); border-radius:4px; height:9px; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:4px; background: var(--series-1); min-width:3px; }
+  .bar-row .stat{ text-align:right; font-family:"IBM Plex Mono",monospace; font-size:12.5px; white-space:nowrap; }
+  .bar-row .stat .sub{ color:var(--text-muted); font-size:11px; margin-left:4px; }
+
+  .empty-msg{ color:var(--text-muted); font-size:13px; padding: 18px 4px; text-align:center; }
+  .footnote{ font-size:12px; color:var(--text-muted); margin-top:10px; }
+
+  /* ---------- Base + Grupo compact charts ---------- */
+  .simple-bar{ display:flex; flex-direction:column; gap:9px; }
+  .simple-bar .item{ display:grid; grid-template-columns: 104px 1fr 92px; align-items:center; gap:10px; }
+  .simple-bar .tag{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .simple-bar .shell{ background: var(--track); border-radius:5px; height:14px; overflow:hidden; }
+  .simple-bar .fill{ height:100%; border-radius:5px; transition: width .18s ease; }
+  .simple-bar .val{ text-align:right; font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
+  .simple-bar .val .sub{ color:var(--text-muted); font-size:11px; }
+
+  .legend{ display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:var(--text-secondary); }
+  .legend .sw{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:middle; }
+
+  /* ---------- Period trend ---------- */
+  .trend{ display:flex; align-items:flex-end; gap:14px; height:150px; padding: 4px 4px 0; }
+  .trend .col{ flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; gap:8px; cursor:pointer; background:none; border:none; font:inherit; }
+  .trend .stack{ width:100%; max-width:52px; display:flex; flex-direction:column-reverse; border-radius:5px 5px 3px 3px; overflow:hidden; }
+  .trend .seg{ width:100%; background: var(--series-1); opacity:.45; transition: opacity .12s; }
+  .trend .col.active .seg{ opacity:1; }
+  .trend .col:hover .seg{ opacity:.75; }
+  .trend .col.active:hover .seg{ opacity:1; }
+  .trend .val{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--text-secondary); }
+  .trend .col.active .val{ color:var(--accent); font-weight:700; }
+  .trend .lbl{ font-size:11.5px; color:var(--text-muted); font-weight:600; letter-spacing:.02em; }
+  .trend .col.active .lbl{ color:var(--text-primary); }
+
+  /* ---------- Data quality callout ---------- */
+  .callout{
+    border:1px solid var(--border); border-left: 3px solid var(--warning); border-radius: 0 10px 10px 0;
+    background: var(--surface); padding: 14px 16px; font-size:13px; color:var(--text-secondary); line-height:1.6;
+    box-shadow: var(--shadow);
+  }
+  .callout h3{ margin:0 0 6px; font-size:13.5px; color:var(--text-primary); font-family:"Archivo Expanded",sans-serif; }
+  .callout ul{ margin:6px 0 0; padding-left:18px; }
+  .callout code{ font-family:"IBM Plex Mono",monospace; font-size:12px; background: var(--track); padding:1px 5px; border-radius:4px; }
+
+  footer{ margin-top: 28px; padding-top:16px; border-top:1px solid var(--border); font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  @media (max-width: 860px){
+    .kpis{ grid-template-columns: repeat(3,1fr); }
+    .row-2{ grid-template-columns: 1fr; }
+    .meta-box{ text-align:left; }
+    header.top{ flex-direction:column; }
+  }
+  @media (max-width: 520px){
+    .kpis{ grid-template-columns: repeat(2,1fr); }
+    .bar-row{ grid-template-columns: 20px minmax(0,1fr) 84px; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <p class="eyebrow">PETROSAR &middot; Control de Partes</p>
+      <h1>Descuentos por Falta de Fotos</h1>
+      <p class="subtitle">Ranking de horas registradas sin fotografía adjunta en los partes de trabajo, agrupado por persona, tablet/cuadrilla y base operativa.</p>
+    </div>
+    <dl class="meta-box">
+      <dt>Fuente</dt><dd id="meta-source">&mdash;</dd>
+      <dt>Actualizado</dt><dd id="meta-updated">&mdash;</dd>
+      <dt>Mostrando</dt><dd id="meta-period">&mdash;</dd>
+    </dl>
+  </header>
+
+  <div class="period-bar" id="period-bar">
+    <span class="pb-label">Período:</span>
+  </div>
+
+  <section class="kpis" id="kpi-strip"></section>
+
+  <section class="row-2">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Ranking por base</h2>
+          <div class="hint">Horas de falta de fotografía acumuladas</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="simple-bar" id="base-chart"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Por grupo de trabajo</h2>
+          <div class="hint">OMF &middot; Construcciones &middot; Soporte</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="simple-bar" id="grupo-chart"></div>
+        <div class="legend" id="grupo-legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Ranking por persona</h2>
+        <div class="hint" id="persona-hint">&mdash;</div>
+      </div>
+      <div class="controls">
+        <input class="search" id="persona-search" type="text" placeholder="Buscar persona&hellip;">
+        <div class="seg" id="persona-metric">
+          <button data-metric="horas" class="active">Horas</button>
+          <button data-metric="partes">N&deg; Partes</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="barlist" id="persona-list"></div>
+      <button class="linklike" id="persona-toggle"></button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Ranking por tablet / cuadrilla</h2>
+        <div class="hint" id="tablet-hint">&mdash;</div>
+      </div>
+      <div class="controls">
+        <input class="search" id="tablet-search" type="text" placeholder="Buscar tablet&hellip;">
+        <div class="seg" id="tablet-metric">
+          <button data-metric="horas" class="active">Horas</button>
+          <button data-metric="partes">N&deg; Partes</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="barlist" id="tablet-list"></div>
+      <button class="linklike" id="tablet-toggle"></button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Tendencia por período</h2>
+        <div class="hint">Horas de falta de fotografía por mes de parte &middot; hacé clic en un mes para filtrar todo el tablero</div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="trend" id="trend-chart"></div>
+    </div>
+  </section>
+
+  <section class="callout" id="dq-callout"></section>
+
+  <footer>
+    <span>Fuente: reporte SAP consolidado &middot; procesado por Claude</span>
+    <span id="footer-count">&mdash;</span>
+  </footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------
+ * Fuente de datos: arranca con el PAYLOAD embebido (instantaneo, nunca
+ * en blanco) y, si esta pagina fue publicada con la capacidad "db"
+ * habilitada y alguien escribio el documento falta_fotos/current, se
+ * suscribe en vivo y reemplaza ROWS/META cada vez que llega una
+ * actualizacion -- sin volver a publicar el HTML. Ver nota al pie del
+ * archivo build.py para el contrato exacto de datos.
+ * --------------------------------------------------------------------- */
+const PAYLOAD = {"rows": [{"persona": "MARTINEZ / 1401-HOURCADE", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.133}, {"persona": "MARTINEZ / 1401-HOURCADE", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.717}, {"persona": "CAYUPEL LUCAS", "tablet": "1118-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.167}, {"persona": "SALTO FABIAN", "tablet": "1126-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.37}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 3.166}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 4.635}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 2.083}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 6.717}, {"persona": "GARCIA GABRIEL", "tablet": "1116-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.75}, {"persona": "GARCIA GABRIEL", "tablet": "1116-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.43}, {"persona": "MARTINEZ NELSON", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.5}, {"persona": "MARTINEZ NELSON", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 1.782}, {"persona": "MARTINEZ NELSON", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.367}, {"persona": "MARTINEZ NELSON", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.117}, {"persona": "MARTINEZ NELSON", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.117}, {"persona": "CAYUPEL LUCAS", "tablet": "1118-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.417}, {"persona": "CAYUPEL LUCAS", "tablet": "1118-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.667}, {"persona": "ROBERTS JAVIER", "tablet": "1122-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.25}, {"persona": "SALTO FABIAN", "tablet": "1126-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.367}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.567}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.6}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.35}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUL 26", "horas": 1.717}, {"persona": "MARTINEZ / HOURCADE", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.183}, {"persona": "MARTINEZ / HOURCADE", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.85}, {"persona": "MARTINEZ NELSON", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUL 26", "horas": 3.001}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.584}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.284}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.467}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.718}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.95}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.4}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.284}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.333}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.199}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.1}, {"persona": "BERTONA VICTOR", "tablet": "1113-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.25}, {"persona": "IGNACIO LAUTARO", "tablet": "1114-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.666}, {"persona": "GARCIA GABRIEL - 1116", "tablet": "1116-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.183}, {"persona": "GARCIA GABRIEL - 1116", "tablet": "1116-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.467}, {"persona": "MARTINEZ NELSON -1117", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.367}, {"persona": "MARTINEZ NELSON -1117", "tablet": "1117-PETROSAR", "base": "CD", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.7}, {"persona": "YAÑEZ G. - RUA EMILIO", "tablet": "1092 PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.417}, {"persona": "YAÑEZ G.-ALVAREZ E.- RUA EMILIO", "tablet": "1092 PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 0.333}, {"persona": "YAÑEZ G. - RUA EMILIO", "tablet": "1092 PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.083}, {"persona": "CUYUL CRISTIAN", "tablet": "539-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 8.75}, {"persona": "LEVICOY/SUBIABRE", "tablet": "622-PETROSAR", "base": "CD", "grupo": "Soporte", "periodo": "MAY 26", "horas": 2.083}, {"persona": "LEVICOY/SUBIABRE", "tablet": "622-PETROSAR", "base": "CD", "grupo": "Soporte", "periodo": "MAY 26", "horas": 3.666}, {"persona": "CIFUENTES-MUÑOZ", "tablet": "481_1-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 0.834}, {"persona": "MARTINEZ MATIAS", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 7.334}, {"persona": "MARTINEZ MATIAS", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 6.503}, {"persona": "MARTINEZ MATIAS", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 5.017}, {"persona": "MARTINEZ MATIAS", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.333}, {"persona": "MARTINEZ MATIAS", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 6.833}, {"persona": "SANDOVAL DIEGO-", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 9.0}, {"persona": "MARTINEZ MATIAS", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.167}, {"persona": "MARTINEZ MATIAS", "tablet": "481_3-PETROSAR", "base": "CD", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 0.833}, {"persona": "DELGADO G.", "tablet": "8822-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "SEP 26", "horas": 1.384}, {"persona": "DELGADO G.", "tablet": "8822-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.416}, {"persona": "CARCAMO P", "tablet": "8831-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.283}, {"persona": "CARCAMO P", "tablet": "8831-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.5}, {"persona": "DE LUCIA J", "tablet": "8831-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.417}, {"persona": "ORIHUELA M.", "tablet": "8833-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.333}, {"persona": "SALDIVIA R.", "tablet": "8833-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.417}, {"persona": "SALDIVIA R.", "tablet": "8833-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 3.285}, {"persona": "SALDIVIA R.", "tablet": "8833-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.583}, {"persona": "SALDIVIA RICARDO", "tablet": "8833-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "JUL 26", "horas": 1.784}, {"persona": "TORRES JORGE", "tablet": "8825-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.184}, {"persona": "GALLARDO BASTIAN", "tablet": "8831-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.416}, {"persona": "DE LUCIA JUAN", "tablet": "8831-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.5}, {"persona": "ORIHUELA VICTOR", "tablet": "8822-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.384}, {"persona": "DE LUCIA JUAN", "tablet": "8831-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.033}, {"persona": "GODOY OSCAR", "tablet": "8833-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.833}, {"persona": "SALDIVIA RICARDO", "tablet": "8833-PETROSAR", "base": "RE", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.233}, {"persona": "MONCHEBEUF R. - SERRANO C.", "tablet": "965-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.834}, {"persona": "SERRANO C.-NAIN C.", "tablet": "965-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.0}, {"persona": "MONCHEBEUF R. - DIAZ MATIAS", "tablet": "965-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 4.75}, {"persona": "MONCHEBEUF R. - SERRANO C.", "tablet": "965-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 4.167}, {"persona": "VARGAS GUILLERMO-GARCIA JUAN G.", "tablet": "952-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.667}, {"persona": "VARGAS GUILLERMO-GARCIA JUAN G.", "tablet": "952-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.583}, {"persona": "VARGAS GUILLERMO-GARCIA JUAN G.", "tablet": "952-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.5}, {"persona": "VARGAS GUILLERMO-GARCIA JUAN G.", "tablet": "952-PETROSAR", "base": "RE", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.5}, {"persona": "ALVAREZ D.", "tablet": "2224-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.583}, {"persona": "TORO F.", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.918}, {"persona": "VILLARINI F.", "tablet": "1119-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.417}, {"persona": "ALVAREZ D.", "tablet": "2224-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.417}, {"persona": "CAYUPEL G.", "tablet": "2225-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.2}, {"persona": "VILLARINI F.", "tablet": "1119-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.4}, {"persona": "VILLARINI F.", "tablet": "1119-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 1.817}, {"persona": "LLANFULLEN.E.", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.417}, {"persona": "RIEDEL E.", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.25}, {"persona": "RIEDEL E.", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.417}, {"persona": "RIEDEL E.", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.5}, {"persona": "CARRASCOBAUTISTA", "tablet": "2216 PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.083}, {"persona": "CARRASCOBAUTISTA", "tablet": "2216 PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.333}, {"persona": "SOLIS MARCELO", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.367}, {"persona": "COÑOCAR DANIEL", "tablet": "2232-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.5}, {"persona": "ESPAT ALEXIS", "tablet": "1112-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.333}, {"persona": "LLANQUIN JOSE", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.333}, {"persona": "VILLARINO FABIO", "tablet": "1119-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.517}, {"persona": "MELLADO MAURICIO", "tablet": "2223-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.998}, {"persona": "LLANFULLENBRUNO", "tablet": "2223-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.25}, {"persona": "ESPAT ALEXIS", "tablet": "2232-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.5}, {"persona": "ESPAT ALEXIS", "tablet": "2232-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 2.667}, {"persona": "CAYUPEL HUGO", "tablet": "2233-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.501}, {"persona": "TORO FRANCISCO", "tablet": "1112-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.417}, {"persona": "ESPAT ALEXIS", "tablet": "1112-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 3.899}, {"persona": "LLANQUIN JOSE", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.666}, {"persona": "MADRID ALEXIS", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.333}, {"persona": "LLANFULLEN EZEQUIEL", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.75}, {"persona": "LLANFULLEN EZEQUIEL", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.167}, {"persona": "LLANFULLEN EZEQUIEL", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.75}, {"persona": "RIEDEL EDUARDO", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.666}, {"persona": "MELLADO MAURICIO", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.584}, {"persona": "RIEDEL EDUARDO", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.6}, {"persona": "AGUILAR- CABRAL", "tablet": "363-PETRO", "base": "VH", "grupo": "Soporte", "periodo": "MAY 26", "horas": 1.009}, {"persona": "ESTEVEZ-GONZALORENA", "tablet": "363-PETRO", "base": "VH", "grupo": "Soporte", "periodo": "MAY 26", "horas": 1.5}, {"persona": "ESPAT ALEXIS", "tablet": "2216 PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.917}, {"persona": "MELLADO MAURICIO", "tablet": "2216 PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.667}, {"persona": "MELLADO MAURICIO", "tablet": "2223-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.5}, {"persona": "ORIHUELA MATIAS", "tablet": "2224-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.716}, {"persona": "ORIHUELA MATIAS", "tablet": "2224-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.45}, {"persona": "ORIHUELA MATIAS", "tablet": "2224-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.767}, {"persona": "MORALES MARCOS", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.466}, {"persona": "MORALES MARCOS", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.416}, {"persona": "MORALES MARCOS", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.417}, {"persona": "MORALES MARCOS", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.283}, {"persona": "MORALES MARCOS", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.383}, {"persona": "MORALES MARCOS", "tablet": "2231-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.333}, {"persona": "MELLADO MAURICIO", "tablet": "2232-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.333}, {"persona": "LLANQUIN PABLO", "tablet": "2232-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.667}, {"persona": "COÑOCAR DANIEL", "tablet": "2232-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.75}, {"persona": "ESPAT ALEXIS", "tablet": "2232-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.5}, {"persona": "CAYUPEL HUGO", "tablet": "2233-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.25}, {"persona": "CAYUPEL HUGO", "tablet": "2233-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.751}, {"persona": "CAYUPEL HUGO", "tablet": "2233-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.417}, {"persona": "ORIHUELA MATIAS", "tablet": "2233-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 2.001}, {"persona": "CAYUPEL HUGO", "tablet": "2233-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.58}, {"persona": "TORO FRANCISCO", "tablet": "1112-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.55}, {"persona": "TORO FRANCISCO", "tablet": "1112-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.583}, {"persona": "TORO FRANCISCO", "tablet": "1112-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.67}, {"persona": "ESPAT ALEXIS", "tablet": "1112-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 5.666}, {"persona": "ESPAT ALEXIS", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.833}, {"persona": "ESPAT ALEXIS", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.167}, {"persona": "ESPAT ALEXIS", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.666}, {"persona": "LLANQUIN JOSE", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.5}, {"persona": "LLANQUIN JOSE", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.167}, {"persona": "LLANQUIN JOSE", "tablet": "1115-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.917}, {"persona": "MELLADO MAURICIO", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.334}, {"persona": "MELLADO MAURICIO", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 2.417}, {"persona": "ESPAT ALEXIS", "tablet": "1125-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.333}, {"persona": "MELLADO MAURICIO", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.5}, {"persona": "MELLADO MAURICIO", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.5}, {"persona": "RIEDEL EDUARDO", "tablet": "1134-PETROSAR", "base": "VH", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.667}, {"persona": "VARGAS-LUQUE", "tablet": "U-424-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.333}, {"persona": "VARGAS-LLANQUIN L", "tablet": "U-424-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.75}, {"persona": "VARGAS-GALLEGUILLO", "tablet": "U-424-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.166}, {"persona": "VARGAS N-MANSILLA M", "tablet": "U-424-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.5}, {"persona": "VARGAS-LLANQUIN", "tablet": "U-424-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.667}, {"persona": "BARRIENTOS-MANSILLA-", "tablet": "1097-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 0.416}, {"persona": "(SIN NOMBRE)", "tablet": "U-358-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.25}, {"persona": "(SIN NOMBRE)", "tablet": "U-521-PETROSAR", "base": "VH", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.5}, {"persona": "RUIZ DIAZ R. / 624-NEUBAUER R.", "tablet": "5523-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "SEP 26", "horas": 9.333}, {"persona": "DOMINGUEZ NESTOR", "tablet": "5515-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "AGO 26", "horas": 9.3}, {"persona": "AYBAR FRANCISCO", "tablet": "5533-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.5}, {"persona": "AYBAR FRANCISCO", "tablet": "5533-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "AGO 26", "horas": 9.3}, {"persona": "MORAGA MARTIN", "tablet": "5534-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "JUL 26", "horas": 9.3}, {"persona": "SANDOVAL FRANCO", "tablet": "5521-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "JUN 26", "horas": 8.167}, {"persona": "SANDOVAL FRANCO", "tablet": "5521-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "JUN 26", "horas": 9.333}, {"persona": "RUIZ DIAZ RENZO", "tablet": "5523-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "JUN 26", "horas": 8.267}, {"persona": "QUIDULEF LEONARDO", "tablet": "5513-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 8.733}, {"persona": "SANDOVAL FRANCO", "tablet": "5521-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.467}, {"persona": "RUIZ DIAS RENZO", "tablet": "5523-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.367}, {"persona": "RUIZ DIAS RENZO", "tablet": "5523-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.2}, {"persona": "RUIZ DIAS RENZO", "tablet": "5523-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.317}, {"persona": "RUIZ DIAS RENZO", "tablet": "5523-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.0}, {"persona": "AYBAR FRANCISCO", "tablet": "5533-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 8.75}, {"persona": "AYBAR FRANCISCO", "tablet": "5533-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 8.75}, {"persona": "AYBAR FRANCISCO", "tablet": "5533-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.433}, {"persona": "ROMERO AGUSTIN", "tablet": "5535-PETROSAR", "base": "AG", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.4}, {"persona": "BURGOS - SALGAO HECTOR", "tablet": "591-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.667}, {"persona": "ROMERO-JARA-HINOJOSA", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 0.917}, {"persona": "ROMERO-JARA-HINOJOSA", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.833}, {"persona": "ROMERO-JARA-HÉCTOR S.", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.134}, {"persona": "ROMERO-HINOJOSA-GALLARDO", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.15}, {"persona": "ROMERO-HINOJOSA-GALLARDO", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 5.4}, {"persona": "ROMERO-HINOJOSA-GALLARDO", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.783}, {"persona": "ROMERO-JARA-HINOJOSA", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.483}, {"persona": "ROMERO-JARA-HINOJOSA", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.333}, {"persona": "ROMERO-JARA-HÉCTOR S.", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 5.917}, {"persona": "ROMERO-JARA-HÉCTOR S.", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.25}, {"persona": "JARA-HECTOR-RUA", "tablet": "592-PETROSAR", "base": "AG", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.5}, {"persona": "CARDENAS FERNANDO", "tablet": "2213-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.167}, {"persona": "GARCIA RICARDO", "tablet": "2214-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.3}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.4}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.367}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "SEP 26", "horas": 0.567}, {"persona": "GARCIA RICARDO", "tablet": "2214-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "AGO 26", "horas": 0.783}, {"persona": "SARQUIS FRANCO", "tablet": "5532-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "AGO 26", "horas": 1.3}, {"persona": "CORREA FABIAN", "tablet": "2215-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUL 26", "horas": 0.4}, {"persona": "GARCIA RICARDO", "tablet": "2214-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.183}, {"persona": "GARCIA RICARDO", "tablet": "2214-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.283}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.417}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.666}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.35}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.217}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.017}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.417}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.2}, {"persona": "PICUNI HIPOLITO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.333}, {"persona": "PICUNI HIPOLITO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.3}, {"persona": "PICUNI HIPOLITO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 1.35}, {"persona": "PICUNI HIPOLITO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.452}, {"persona": "PARDO CRISTIAN", "tablet": "8823-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.167}, {"persona": "JARA GABRIEL", "tablet": "8823-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.25}, {"persona": "AGUIRRE SEBASTIAN", "tablet": "8824-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "JUN 26", "horas": 0.583}, {"persona": "CARDENAS CRISTIAN", "tablet": "2213-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.334}, {"persona": "GARCIA RICARDO", "tablet": "2214-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.667}, {"persona": "CORREA FABIAN", "tablet": "2215-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.334}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.75}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 1.0}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.3}, {"persona": "ROJAS RICARDO", "tablet": "2221-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.75}, {"persona": "KRUGER PABLO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 7.084}, {"persona": "PICUNI HIPOLITO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 2.499}, {"persona": "PICUNI HIPOLITO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 3.332}, {"persona": "PICUNI HIPOLITO", "tablet": "2222-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.25}, {"persona": "BARRERA EZEQUIEL", "tablet": "5512-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.8}, {"persona": "BARRERA EZEQUIEL", "tablet": "5512-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 8.383}, {"persona": "BARRERA EZEQUIEL", "tablet": "5512-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.217}, {"persona": "JARA GABRIEL", "tablet": "5532-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 9.083}, {"persona": "ANTONIO ALEJANDRO", "tablet": "5532-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 8.417}, {"persona": "PARDO CRISTIAN", "tablet": "8823-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.45}, {"persona": "AGUIRRE SEBASTIAN", "tablet": "8824-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.584}, {"persona": "AGUIRRE SEBASTIAN", "tablet": "8824-PETROSAR", "base": "TP", "grupo": "OMF", "periodo": "MAY 26", "horas": 0.833}, {"persona": "CURRUMAN H.-URRUTIA A.-HUILIPAN", "tablet": "969-PETROSAR", "base": "TP", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 2.25}, {"persona": "CURRUMAN H. - ANTONIO A.", "tablet": "969-PETROSAR", "base": "TP", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 1.833}, {"persona": "NEREO G.-JAVIER D.-ZAPATA", "tablet": "972-PETROSAR", "base": "TP", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 0.583}, {"persona": "VEGAS-SALDIVIA-HUILIPAN", "tablet": "U-377-PETROSAR", "base": "TP", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.5}, {"persona": "NIETHAMMER-VEGAS-MINOLI", "tablet": "U-377-PETROSAR", "base": "TP", "grupo": "Construcciones", "periodo": "MAY 26", "horas": 3.0}], "meta": {"source": "sap_11_09_26", "updated": "12/09/2026 01:31", "period_order": ["MAY 26", "JUN 26", "JUL 26", "AGO 26", "SEP 26"], "issues": {"sin_nombre": 2, "sin_base": 0, "sin_cuadrilla": 0, "horas_invalidas": 0}, "dupes": {"BERTONA VICTOR": ["1308-Bertona Victor", "Bertona Victor"], "AYBAR FRANCISCO": ["919-AYBAR FRANCISCO", "AYBAR FRANCISCO"], "SANDOVAL FRANCO": ["918-SANDOVAL, FRANCO", "SANDOVAL FRANCO"], "GARCIA RICARDO": ["798-GARCIA, RICARDO", "GARCIA, RICARDO"], "ROJAS RICARDO": ["1197-ROJAS, RICARDO", "ROJAS, RICARDO"], "AGUIRRE SEBASTIAN": ["AGUIRRE SEBASTIAN", "AGUIRRE, SEBASTIAN"]}}};
+let ROWS = PAYLOAD.rows;
+let META = PAYLOAD.meta;
+let PERIOD_ORDER = META.period_order;
+const seriesColors = ['var(--series-1)','var(--series-2)','var(--series-3)','var(--series-4)'];
+
+function fmt1(n){ return (Math.round(n*10)/10).toLocaleString('es-AR',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+function fmt0(n){ return n.toLocaleString('es-AR'); }
+
+function groupBy(rows, key){
+  const m = new Map();
+  for(const r of rows){
+    const k = r[key];
+    if(!m.has(k)) m.set(k, {name:k, horas:0, partes:0});
+    const e = m.get(k);
+    e.horas += r.horas; e.partes += 1;
+  }
+  const out = [...m.values()].map(e=>({name:e.name, horas: Math.round(e.horas*100)/100, partes:e.partes}));
+  out.sort((a,b)=> b.horas-a.horas);
+  return out;
+}
+
+/* ---------- Global filter state ---------- */
+const appState = { period: 'ALL' };
+
+function currentRows(){
+  return appState.period === 'ALL' ? ROWS : ROWS.filter(r => r.periodo === appState.period);
+}
+
+/* ---------- Header meta ---------- */
+function renderHeaderMeta(){
+  document.getElementById('meta-source').textContent = META.source || '\\u2014';
+  document.getElementById('meta-updated').textContent = META.updated || '\\u2014';
+}
+
+/* ---------- Period filter bar (rebuilt whenever the dataset changes) ---------- */
+function renderPeriodBar(){
+  const bar = document.getElementById('period-bar');
+  const totalsByPeriod = groupBy(ROWS, 'periodo');
+  const byName = Object.fromEntries(totalsByPeriod.map(p=>[p.name,p]));
+  const totalAll = { horas: ROWS.reduce((s,r)=>s+r.horas,0), partes: ROWS.length };
+
+  function pillHtml(key, label, stats){
+    const active = appState.period === key ? ' active' : '';
+    return '<button class="pill'+active+'" data-period="'+key+'">'+label+' <span class="n">'+stats.partes+'p &middot; '+fmt1(stats.horas)+'h</span></button>';
+  }
+  let html = pillHtml('ALL','Todos', totalAll);
+  PERIOD_ORDER.forEach(p => { if(byName[p]) html += pillHtml(p, p, byName[p]); });
+  bar.querySelectorAll('.pill').forEach(b=>b.remove());
+  bar.insertAdjacentHTML('beforeend', html);
+}
+
+/* Delegated listener registered once -- survives renderPeriodBar() rebuilding the pills */
+document.getElementById('period-bar').addEventListener('click', e=>{
+  const btn = e.target.closest('.pill');
+  if(!btn) return;
+  setPeriod(btn.dataset.period);
+});
+
+function setPeriod(p){
+  appState.period = p;
+  renderAll();
+}
+
+
+/* ---------- KPI strip ---------- */
+function renderKpis(){
+  const rows = currentRows();
+  const totalHoras = rows.reduce((s,r)=>s+r.horas,0);
+  const personas = new Set(rows.map(r=>r.persona)).size;
+  const tablets = new Set(rows.map(r=>r.tablet)).size;
+  const bases = new Set(rows.map(r=>r.base)).size;
+  const kpis = [
+    {label:'Horas totales sin foto', value: fmt1(totalHoras), unit:'hs', accent:true},
+    {label:'Partes afectados', value: fmt0(rows.length), unit:''},
+    {label:'Personas involucradas', value: fmt0(personas), unit:''},
+    {label:'Tablets / cuadrillas', value: fmt0(tablets), unit:''},
+    {label:'Bases', value: fmt0(bases), unit:''},
+    {label:'Horas / parte (prom.)', value: rows.length ? fmt1(totalHoras/rows.length) : '0,0', unit:'hs'},
+  ];
+  document.getElementById('kpi-strip').innerHTML = kpis.map(k =>
+    '<div class="kpi'+(k.accent?' accent':'')+'"><div class="label">'+k.label+'</div><div class="value">'+k.value+(k.unit?'<span class="unit">'+k.unit+'</span>':'')+'</div></div>'
+  ).join('');
+  document.getElementById('footer-count').textContent = rows.length + ' partes analizados \\u00b7 ' + fmt1(totalHoras) + ' hs totales';
+  document.getElementById('meta-period').textContent = appState.period === 'ALL'
+    ? ('Todos \\u2014 ' + PERIOD_ORDER[0] + ' \\u2192 ' + PERIOD_ORDER[PERIOD_ORDER.length-1])
+    : appState.period;
+}
+
+/* ---------- Base ranking (simple bar) ---------- */
+function renderBaseChart(){
+  const bases = groupBy(currentRows(), 'base');
+  const el = document.getElementById('base-chart');
+  if(bases.length===0){ el.innerHTML = '<div class="empty-msg">Sin datos para este período.</div>'; return; }
+  const maxH = Math.max(...bases.map(b=>b.horas));
+  el.innerHTML = bases.map((b,i)=>{
+    const pct = (b.horas/maxH*100).toFixed(1);
+    return '<div class="item"><span class="tag" style="color:'+seriesColors[i%4]+'">'+b.name+'</span>'
+      + '<span class="shell"><span class="fill" style="width:'+pct+'%;background:'+seriesColors[i%4]+'"></span></span>'
+      + '<span class="val">'+fmt1(b.horas)+' hs<br><span class="sub">'+b.partes+' partes</span></span></div>';
+  }).join('');
+}
+
+/* ---------- Grupo breakdown ---------- */
+function renderGrupoChart(){
+  const rows = currentRows();
+  const grupos = groupBy(rows, 'grupo');
+  const totalHoras = rows.reduce((s,r)=>s+r.horas,0);
+  const el = document.getElementById('grupo-chart');
+  if(grupos.length===0){ el.innerHTML = '<div class="empty-msg">Sin datos para este período.</div>'; document.getElementById('grupo-legend').innerHTML=''; return; }
+  const maxH = Math.max(...grupos.map(g=>g.horas));
+  el.innerHTML = grupos.map((g,i)=>{
+    const pct = (g.horas/maxH*100).toFixed(1);
+    return '<div class="item"><span class="tag" style="color:'+seriesColors[i%4]+'">'+g.name+'</span>'
+      + '<span class="shell"><span class="fill" style="width:'+pct+'%;background:'+seriesColors[i%4]+'"></span></span>'
+      + '<span class="val">'+fmt1(g.horas)+' hs<br><span class="sub">'+g.partes+' partes</span></span></div>';
+  }).join('');
+  document.getElementById('grupo-legend').innerHTML = grupos.map((g,i)=>
+    '<span><span class="sw" style="background:'+seriesColors[i%4]+'"></span>'+g.name+' &mdash; '+(totalHoras? (g.horas/totalHoras*100).toFixed(0):'0')+'%</span>'
+  ).join('');
+}
+
+/* ---------- Trend by period (always full range; highlights selection) ---------- */
+function renderTrend(){
+  const all = groupBy(ROWS, 'periodo');
+  const byName = Object.fromEntries(all.map(p=>[p.name,p]));
+  const ordered = PERIOD_ORDER.map(name => byName[name] || {name, horas:0, partes:0});
+  const maxH = Math.max(...ordered.map(p=>p.horas), 1);
+  const el = document.getElementById('trend-chart');
+  el.innerHTML = ordered.map(p=>{
+    const h = Math.max(6, (p.horas/maxH*100));
+    const active = appState.period === p.name;
+    return '<button class="col'+(active?' active':'')+'" data-period="'+p.name+'"><div class="val">'+fmt1(p.horas)+'</div>'
+      + '<div class="stack" style="height:'+h+'%"><span class="seg" style="height:100%"></span></div>'
+      + '<div class="lbl">'+p.name+'</div></button>';
+  }).join('');
+  [...el.querySelectorAll('.col')].forEach(btn=>{
+    btn.addEventListener('click', ()=> setPeriod(appState.period === btn.dataset.period ? 'ALL' : btn.dataset.period));
+  });
+}
+
+/* ---------- Ranking builder (persona / tablet) ---------- */
+function makeRanking(cfg){
+  const state = { metric: 'horas', query: '', expanded: false };
+  const listEl = document.getElementById(cfg.listId);
+  const hintEl = document.getElementById(cfg.hintId);
+  const toggleEl = document.getElementById(cfg.toggleId);
+  const searchEl = document.getElementById(cfg.searchId);
+  const metricEl = document.getElementById(cfg.metricId);
+
+  function render(){
+    let items = groupBy(currentRows(), cfg.key);
+    if(state.query){
+      const q = state.query.toLocaleUpperCase();
+      items = items.filter(d => d.name.toLocaleUpperCase().includes(q));
+    }
+    items.sort((a,b)=> b[state.metric]-a[state.metric]);
+    const total = items.length;
+    const shown = state.expanded ? items : items.slice(0, cfg.top);
+    const max = Math.max(1, ...items.map(d=>d[state.metric]));
+
+    hintEl.textContent = total + ' ' + cfg.noun + (total===1?'':'s') + ' con horas sin fotografía \\u00b7 ordenado de mayor a menor';
+
+    if(shown.length===0){
+      listEl.innerHTML = '<div class="empty-msg">'+(state.query ? 'Sin coincidencias para "'+state.query+'".' : 'Sin datos para este período.')+'</div>';
+    } else {
+      listEl.innerHTML = shown.map((d,i)=>{
+        const val = state.metric==='horas' ? fmt1(d.horas)+' hs' : fmt0(d.partes);
+        const sub = state.metric==='horas' ? d.partes+'p' : fmt1(d.horas)+'h';
+        const pct = (d[state.metric]/max*100).toFixed(1);
+        const rankCls = i<3 ? ' top' : '';
+        return '<div class="bar-row"><span class="rank'+rankCls+'">'+(i+1)+'</span>'
+          + '<span class="bar-track"><span class="bar-name" title="'+d.name+'">'+d.name+'</span>'
+          + '<span class="bar-shell"><span class="bar-fill" style="width:'+pct+'%"></span></span></span>'
+          + '<span class="stat">'+val+'<span class="sub">'+sub+'</span></span></div>';
+      }).join('');
+    }
+    toggleEl.textContent = total <= cfg.top ? '' : (state.expanded ? 'Mostrar menos \\u2191' : 'Mostrar los ' + total + ' ' + cfg.noun + 's \\u2193');
+  }
+
+  searchEl.addEventListener('input', e => { state.query = e.target.value; state.expanded = true; render(); });
+  toggleEl.addEventListener('click', () => { state.expanded = !state.expanded; render(); });
+  metricEl.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-metric]');
+    if(!btn) return;
+    state.metric = btn.dataset.metric;
+    [...metricEl.querySelectorAll('button')].forEach(b=>b.classList.toggle('active', b===btn));
+    render();
+  });
+
+  return { render };
+}
+
+const personaCtrl = makeRanking({ key:'persona', top: 15, listId:'persona-list', hintId:'persona-hint', toggleId:'persona-toggle', searchId:'persona-search', metricId:'persona-metric', noun:'persona' });
+const tabletCtrl  = makeRanking({ key:'tablet',  top: 15, listId:'tablet-list',  hintId:'tablet-hint',  toggleId:'tablet-toggle',  searchId:'tablet-search',  metricId:'tablet-metric',  noun:'tablet' });
+
+/* ---------- Data quality callout ---------- */
+function renderDq(){
+  const rows = currentRows();
+  const dupeCount = Object.keys(META.dupes).length;
+  const sinNombre = rows.filter(r=>r.persona==='(SIN NOMBRE)');
+  const sinNombreHoras = sinNombre.reduce((s,r)=>s+r.horas,0);
+  const el = document.getElementById('dq-callout');
+  let html = '<h3>Nota sobre calidad de datos</h3><ul>';
+  html += '<li>Los nombres de persona se normalizaron (se quit\\u00f3 el c\\u00f3digo num\\u00e9rico de legajo antepuesto y se unificaron may\\u00fasculas) para poder agrupar correctamente en todo el tablero. Esto unific\\u00f3 <strong>'+dupeCount+' personas</strong> que aparec\\u00edan con dos formatos de nombre distintos, por ejemplo: '
+    + Object.entries(META.dupes).slice(0,3).map(([k,v])=>'<code>'+v.join('</code> / <code>')+'</code> &rarr; <strong>'+k+'</strong>').join('; ') + '.</li>';
+  if(sinNombre.length>0){
+    html += '<li><strong>'+sinNombre.length+' parte'+(sinNombre.length===1?'':'s')+'</strong> en '+(appState.period==='ALL'?'el total':appState.period)+' no ' + (sinNombre.length===1?'tiene':'tienen') + ' persona identificada en el reporte de origen (agrupado'+(sinNombre.length===1?'':'s')+' como <code>(SIN NOMBRE)</code>), aportando '+fmt1(sinNombreHoras)+' hs.</li>';
+  }
+  html += '<li>"Tablet" corresponde a la columna <code>Nombre Cuadrilla</code> del reporte SAP (c\\u00f3digo de cuadrilla/dispositivo asignado en campo).</li>';
+  html += '</ul>';
+  el.innerHTML = html;
+}
+
+/* ---------- Orchestrator ---------- */
+function renderAll(){
+  renderPeriodBar();
+  renderKpis();
+  renderBaseChart();
+  renderGrupoChart();
+  renderTrend();
+  personaCtrl.render();
+  tabletCtrl.render();
+  renderDq();
+}
+
+renderHeaderMeta();
+renderAll();
+</script>
